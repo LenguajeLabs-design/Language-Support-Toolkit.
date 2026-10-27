@@ -34,6 +34,14 @@ function App() {
 function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [query, setQuery] = useState('')
   const visibleStrategies = useMemo(() => strategies.filter((strategy) => `${strategy.title} ${strategy.summary}`.toLowerCase().includes(query.toLowerCase())), [query])
+  const lessonMoments = [
+    ['A reading, worksheet, or AI text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
+    ['Important vocabulary', 'Choose and teach the words that unlock the lesson.', 'build-a-word-bank'],
+    ['A slide, chart, or diagram', 'Create a reviewed multilingual access point.', 'translate-a-visual'],
+    ['A discussion or oral response', 'Prepare language for meaningful participation.', 'support-speaking'],
+    ['A paragraph or extended task', 'Support structure and reasoning in writing.', 'scaffold-writing'],
+    ['A lesson I am still planning', 'Notice the language work before choosing a scaffold.', 'find-language-demands'],
+  ] as const
   return <>
     <section className="home-hero">
       <div className="container hero-grid">
@@ -58,6 +66,17 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
           {[
             ['1', 'NOTICE', 'Spot one language barrier.'], ['2', 'SCAFFOLD', 'Choose a support that fits.'], ['3', 'CREATE', 'Adapt a resource with AI.'], ['4', 'REVIEW', 'Teach it—and refine it.'],
           ].map(([number, title, body], index) => <div className="framework-step" key={title}><span>{number}</span><div><b>{title}</b><small>{body}</small></div>{index < 3 && <Icon name="ArrowRight" size={20} />}</div>)}
+        </div>
+      </div>
+    </section>
+    <section className="lesson-moment-section">
+      <div className="container">
+        <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose the lesson moment that is closest to yours. You can still adjust the strategy once you arrive.</p></div><span className="lesson-moment-note"><Icon name="Lightbulb" size={17} />Not sure? Start with the lesson you have.</span></div>
+        <div className="lesson-moment-grid">
+          {lessonMoments.map(([label, detail, slug]) => {
+            const strategy = getStrategy(slug)!
+            return <a className={`lesson-moment accent-${strategy.accent}`} href={`#/strategy/${slug}`} key={slug} onClick={(event) => { event.preventDefault(); onNavigate(`/strategy/${slug}`) }}><span className="lesson-moment-icon"><Icon name={strategy.icon as never} size={23} /></span><span><b>{label}</b><small>{detail}</small></span><Icon name="ArrowRight" size={17} /></a>
+          })}
         </div>
       </div>
     </section>

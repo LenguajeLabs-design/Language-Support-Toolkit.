@@ -100,6 +100,21 @@ p { line-height: 1.55; }
 .framework-step small { margin-top: 4px; color: var(--muted); font-size: .75rem; line-height: 1.24; }
 .framework-step svg { position: absolute; right: -11px; color: #8aa3bf; }
 
+.lesson-moment-section { padding: 66px 0 72px; background: linear-gradient(180deg, #f4fbf8, #fffefa); }
+.lesson-moment-heading { display: flex; justify-content: space-between; gap: 32px; align-items: end; margin-bottom: 27px; }
+.lesson-moment-heading h2 { margin: 8px 0 8px; font-size: clamp(2rem, 4vw, 3rem); }
+.lesson-moment-heading p:not(.eyebrow) { max-width: 595px; margin: 0; color: var(--muted); }
+.lesson-moment-note { display: flex; flex: 0 0 auto; gap: 7px; align-items: center; margin-bottom: 5px; color: #48697a; font-size: .76rem; font-weight: 720; }
+.lesson-moment-note svg { color: #c38219; }
+.lesson-moment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.lesson-moment { display: grid; grid-template-columns: 42px 1fr 18px; gap: 11px; align-items: center; min-height: 96px; padding: 14px; border: 1px solid rgba(32, 69, 91, .08); border-radius: 12px; text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.lesson-moment:hover { transform: translateY(-3px); box-shadow: 0 11px 22px rgba(8, 42, 87, .1); }
+.lesson-moment-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; background: rgba(255,255,255,.66); }
+.lesson-moment b, .lesson-moment small { display: block; }
+.lesson-moment b { color: var(--navy); font-family: Georgia, serif; font-size: 1rem; line-height: 1.1; }
+.lesson-moment small { margin-top: 4px; color: #486175; font-size: .69rem; line-height: 1.32; }
+.lesson-moment > svg { color: #50708d; }
+
 .strategy-section { padding: 72px 0 84px; background: #f8fafc; }
 .section-heading.split, .listing-heading { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 30px; }
 .section-heading.split h2 { margin-bottom: 0; font-size: clamp(2.1rem, 4vw, 3.2rem); }
@@ -172,6 +187,27 @@ p { line-height: 1.55; }
 
 .not-found { display: grid; min-height: 54vh; place-items: center; text-align: center; }.not-found .container { max-width: 600px; }.not-found-icon { display: grid; place-items: center; width: 67px; height: 67px; margin: 0 auto 19px; border-radius: 19px; background: var(--blue); color: #1472c0; }.not-found h1 { margin: 8px 0; font-size: 3rem; }.not-found p:not(.eyebrow) { color: var(--muted); }.not-found .primary-button { margin-top: 15px; }
 .site-footer { padding: 25px 0; border-top: 1px solid #dae4ed; background: #f6f9fb; }.footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }.footer-brand strong { font-size: .94rem; }.footer-brand small { font-size: .57rem; }.footer-inner > p, .footer-inner > a { margin: 0; color: #55708b; font-size: .7rem; font-weight: 700; }.footer-inner > a { color: #1c70b3; }
+
+.context-note { display: flex; gap: 7px; align-items: flex-start; margin: -4px 0 17px; color: #55718a; font-size: .73rem; line-height: 1.4; }
+.context-note svg { flex: 0 0 auto; margin-top: 1px; color: #25834a; }
+.copy-success { display: flex; gap: 10px; align-items: flex-start; margin-top: 15px; padding: 13px 15px; border: 1px solid #b9ddc3; border-radius: 9px; background: #e9f7ed; color: #185a35; }
+.copy-success > svg { flex: 0 0 auto; margin-top: 2px; }
+.copy-success strong, .copy-success span { display: block; }
+.copy-success strong { font-size: .82rem; }
+.copy-success span { margin-top: 2px; color: #35664b; font-size: .76rem; line-height: 1.42; }
+
+@media (max-width: 900px) {
+  .lesson-moment-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 680px) {
+  .lesson-moment-section { padding: 47px 0 51px; }
+  .lesson-moment-heading { display: block; margin-bottom: 20px; }
+  .lesson-moment-heading h2 { font-size: 2.28rem; }
+  .lesson-moment-note { margin-top: 13px; }
+  .lesson-moment-grid { grid-template-columns: 1fr; }
+  .lesson-moment { min-height: 82px; }
+}
 
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr .7fr; gap: 15px; }.hero-art { transform: scale(.88); transform-origin: right center; }.workshop-grid { grid-template-columns: 1fr 1fr; gap: 28px; }.workshop-grid > .secondary-button { grid-column: span 2; width: max-content; }.framework-step svg { display: none; }.overview-content, .tips-layout { grid-template-columns: 1fr; }.related { max-width: 650px; }.strategy-grid { grid-template-columns: repeat(2, 1fr); }.before-after { grid-template-columns: 1fr; }.example-arrow { height: 30px; transform: rotate(90deg); }.resource-card { min-height: unset; }.change-card { display: block; }.change-card ul { margin-top: 13px; }
