@@ -222,8 +222,12 @@ p { line-height: 1.55; }
 .prompt-intro { margin-bottom: 13px; }
 .prompt-context-tip { display: flex; gap: 7px; align-items: center; margin: 12px 0 0; color: #416784; font-size: .78rem; }
 .prompt-context-tip svg { flex: 0 0 auto; color: #1779bc; }
+.prompt-language-bridge { display: flex; gap: 7px; align-items: flex-start; margin: 9px 0 0; color: #55718a; font-size: .76rem; line-height: 1.42; }
+.prompt-language-bridge svg { flex: 0 0 auto; margin-top: 1px; color: #704ca3; }
 .prompt-controls { gap: 14px; margin: 18px 0; padding: 0; border: 0; }
 .prompt-controls label { color: #3d5873; font-size: .78rem; font-weight: 750; text-transform: none; letter-spacing: normal; }
+.prompt-controls label > span { display: flex; gap: 6px; align-items: baseline; }
+.prompt-controls em { color: #6e8192; font-size: .69rem; font-style: normal; font-weight: 650; }
 .prompt-controls input { min-height: 44px; height: auto; margin-top: 7px; padding: 0 12px; border-radius: var(--radius-sm); font-size: .9rem; }
 .prompt-controls input:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(15, 118, 197, .14); }
 .prompt-text { border-radius: var(--radius-sm); font-size: .78rem; }
