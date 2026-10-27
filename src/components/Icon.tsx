@@ -1,11 +1,11 @@
 import {
-  ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, FileText,
+  ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, Eye, FileText,
   Image, Languages, Lightbulb, Menu, MessageCircle, MessageSquareMore, PencilLine,
-  Search, Sparkles, X,
+  Search, ShieldCheck, Sparkles, X,
 } from 'lucide-react'
 import type { LucideProps } from 'lucide-react'
 
-const icons = { ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, FileText, Image, Languages, Lightbulb, Menu, MessageCircle, MessageSquareMore, PencilLine, Search, Sparkles, X }
+const icons = { ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, Eye, FileText, Image, Languages, Lightbulb, Menu, MessageCircle, MessageSquareMore, PencilLine, Search, ShieldCheck, Sparkles, X }
 
 export type IconName = keyof typeof icons
 

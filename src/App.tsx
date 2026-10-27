@@ -4,6 +4,12 @@ import { Icon } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
+import volcanoSupport from './assets/learning/volcano-support.png'
+import weatheringCue from './assets/learning/weathering-cue.png'
+import erosionCue from './assets/learning/erosion-cue.png'
+import sedimentCue from './assets/learning/sediment-cue.png'
+import surfaceCue from './assets/learning/surface-cue.png'
+import imageTranslationWorkflow from './assets/learning/image-translation-workflow.png'
 
 function routeFromHash() {
   const route = window.location.hash.replace(/^#/, '')
@@ -113,12 +119,17 @@ function Overview({ strategy }: { strategy: Strategy }) {
 }
 
 function WordBankTable() {
-  const rows = [['weathering', 'rocks breaking into smaller pieces', 'Watering causes weathering over time.'], ['erosion', 'rock and soil moving by water, wind, or ice', 'Water causes erosion.'], ['sediment', 'small pieces of rock or soil', 'Rivers carry sediment.'], ['surface', 'the top layer of something', 'The surface changes over time.']]
-  return <div className="wordbank-table"><div className="table-title">Word bank: Landforms and erosion</div><div className="wordbank-head"><b>Word</b><b>Meaning</b><b>Say it</b></div>{rows.map(([word, meaning, sentence]) => <div className="wordbank-row" key={word}><strong>{word}</strong><span>{meaning}</span><span>{sentence}</span></div>)}</div>
+  const rows = [
+    { word: 'weathering', meaning: 'rocks breaking into smaller pieces', sentence: 'Weathering breaks rocks over time.', image: weatheringCue, alt: 'A cracked boulder with rain and roots' },
+    { word: 'erosion', meaning: 'rock and soil moving by water, wind, or ice', sentence: 'Water causes erosion.', image: erosionCue, alt: 'A river carrying soil and rocks away from a bank' },
+    { word: 'sediment', meaning: 'small pieces of rock or soil', sentence: 'Rivers carry sediment.', image: sedimentCue, alt: 'Small rocks, sand, and soil settled in water' },
+    { word: 'surface', meaning: 'the top layer of something', sentence: 'The surface changes over time.', image: surfaceCue, alt: 'The grassy top layer of a block of land' },
+  ]
+  return <div className="wordbank-table"><div className="table-title">Word bank: Landforms and erosion</div><div className="wordbank-head"><b>Word</b><b>Meaning</b><b>Visual cue</b><b>Say it</b></div>{rows.map(({ word, meaning, sentence, image, alt }) => <div className="wordbank-row" key={word}><strong>{word}</strong><span>{meaning}</span><span className="wordbank-image"><img src={image} alt={alt} /></span><span>{sentence}</span></div>)}<p className="wordbank-note"><Icon name="Eye" size={13} />Use each image as a quick cue, then ask students to say the word and use it in a sentence.</p></div>
 }
 
 function Example({ strategy }: { strategy: Strategy }) {
-  return <div className="strategy-content"><div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div><div className="before-after"><article className="resource-card original"><div className="resource-label"><span></span>{strategy.example.originalLabel}</div><p>{strategy.example.original}</p></article><div className="example-arrow"><Icon name="ArrowRight" size={23} /></div><article className={`resource-card improved accent-${strategy.accent}`}><div className="resource-label"><span></span>{strategy.example.improvedLabel}</div>{strategy.example.type === 'wordbank' ? <WordBankTable /> : <p>{strategy.example.improved}</p>}</article></div><section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section></div>
+  return <div className="strategy-content"><div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div><div className="before-after"><article className="resource-card original"><div className="resource-label"><span></span>{strategy.example.originalLabel}</div><p>{strategy.example.original}</p></article><div className="example-arrow"><Icon name="ArrowRight" size={23} /></div><article className={`resource-card improved accent-${strategy.accent} ${strategy.slug === 'adapt-a-text' ? 'with-visual-support' : ''}`}><div className="resource-label"><span></span>{strategy.example.improvedLabel}</div>{strategy.example.type === 'wordbank' ? <WordBankTable /> : <p>{strategy.example.improved}</p>}{strategy.slug === 'adapt-a-text' && <figure className="volcano-visual"><img src={volcanoSupport} alt="Cutaway illustration of an erupting volcano with magma, ash, and layers of rock" /><figcaption><Icon name="Eye" size={14} /><span><b>Teach with the visual:</b> point to magma, ash, and the Earth’s surface as students encounter the words.</span></figcaption></figure>}</article></div>{strategy.slug === 'translate-a-visual' && <section className="translation-workflow" aria-labelledby="translation-workflow-title"><figure><img src={imageTranslationWorkflow} alt="A visual moving from a photographed water-cycle diagram to a reviewed diagram with added language labels" /></figure><div><p className="eyebrow">A visual workflow</p><h3 id="translation-workflow-title">Translate the image—then teach from it.</h3><ol><li><span>1</span><p>Capture a non-identifying slide, chart, or diagram.</p></li><li><span>2</span><p>Use your school-approved image translation tool to create a draft.</p></li><li><span>3</span><p>Review academic terms, placement, and readability before students see it.</p></li></ol><p className="workflow-note"><Icon name="ShieldCheck" size={15} />Google Translate can be one option; follow your school’s privacy guidance and verify the wording.</p></div></section>}<section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section></div>
 }
 
 function Tips({ strategy, onNavigate }: { strategy: Strategy; onNavigate: (path: string) => void }) {

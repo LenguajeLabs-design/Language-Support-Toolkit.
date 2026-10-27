@@ -185,6 +185,36 @@ p { line-height: 1.55; }
 .example-heading { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-bottom: 19px; }.example-heading h2 { margin: 7px 0 0; font-size: 2rem; }.example-tag { padding: 7px 10px; border-radius: 99px; background: #e7f0fa; color: #496b8d; font-size: .7rem; font-weight: 800; white-space: nowrap; }
 .before-after { display: grid; grid-template-columns: 1fr 38px 1fr; gap: 13px; align-items: stretch; }.resource-card { min-height: 305px; padding: 20px; border: 1px solid #dbe3eb; border-radius: 12px; background: white; }.resource-card.original { background: #fbfbfc; }.resource-label { display: flex; align-items: center; gap: 7px; padding-bottom: 12px; border-bottom: 1px solid #e0e6eb; color: #4d6381; font-size: .73rem; font-weight: 800; }.resource-label span { width: 8px; height: 8px; border-radius: 50%; background: #9eafc3; }.improved .resource-label span { background: #45a66e; }.resource-card > p { margin: 16px 0 0; white-space: pre-line; color: #2b3e58; font-size: .88rem; line-height: 1.62; }.example-arrow { display: grid; place-items: center; color: #4e7499; }.wordbank-table { margin-top: 15px; overflow: hidden; border: 1px solid #b9d8c1; border-radius: 7px; background: white; font-size: .66rem; }.table-title { padding: 7px; background: #3ca66e; color: white; font-weight: 800; text-align: center; }.wordbank-head, .wordbank-row { display: grid; grid-template-columns: .75fr 1.1fr 1.15fr; }.wordbank-head { background: #e6f4e9; font-size: .59rem; }.wordbank-head b, .wordbank-row > * { padding: 7px; border-right: 1px solid #ceddce; }.wordbank-head b:last-child, .wordbank-row > *:last-child { border-right: 0; }.wordbank-row { border-top: 1px solid #dce7dd; line-height: 1.25; }.wordbank-row strong { color: #225c38; }.wordbank-row span { color: #486050; }.change-card { display: flex; gap: 28px; align-items: start; margin-top: 20px; padding: 17px 20px; border-radius: 12px; background: #eef7fc; }.change-card > div { display: flex; flex: 0 0 165px; align-items: center; gap: 7px; color: #155986; font-size: .82rem; }.change-card ul { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }.change-card li { display: flex; gap: 8px; color: #31516e; font-size: .8rem; }.change-card li svg { flex: 0 0 auto; color: #23854d; }
 
+/* Instructional imagery is part of the scaffold: each visual is paired with a concise teaching move. */
+.wordbank-table { overflow-x: auto; }
+.table-title, .wordbank-head, .wordbank-row, .wordbank-note { min-width: 440px; }
+.wordbank-head, .wordbank-row { grid-template-columns: .66fr 1.05fr .64fr 1.12fr; }
+.wordbank-row { min-height: 55px; }
+.wordbank-image { display: grid; place-items: center; padding: 3px !important; background: #f7fbf8; }
+.wordbank-image img { display: block; width: 47px; height: 47px; object-fit: contain; }
+.wordbank-note { display: flex; gap: 6px; align-items: flex-start; margin: 0; padding: 8px; border-top: 1px solid #dce7dd; background: #f6fbf7; color: #476052; font-size: .59rem; line-height: 1.32; }
+.wordbank-note svg { flex: 0 0 auto; margin-top: 1px; color: #287b49; }
+.with-visual-support > p { margin-bottom: 10px; }
+.volcano-visual { display: grid; grid-template-columns: 132px 1fr; gap: 10px; align-items: center; margin: 12px 0 0; padding: 9px; border: 1px solid #cae2ef; border-radius: 9px; background: #f0f8fc; }
+.volcano-visual img { display: block; width: 100%; max-height: 125px; object-fit: contain; }
+.volcano-visual figcaption { display: flex; gap: 6px; align-items: flex-start; color: #375a75; font-size: .68rem; line-height: 1.38; }
+.volcano-visual figcaption svg { flex: 0 0 auto; margin-top: 1px; color: #1875b7; }
+.translation-workflow { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(260px, .82fr); gap: 24px; align-items: center; margin-top: 20px; padding: 20px; border: 1px solid #cce4ef; border-radius: 13px; background: linear-gradient(135deg, #f2fbff, #fffefa 66%); }
+.translation-workflow figure { margin: 0; }
+.translation-workflow figure img { display: block; width: 100%; max-height: 265px; object-fit: contain; }
+.translation-workflow h3 { margin: 5px 0 13px; color: #183d61; font-family: Georgia, serif; font-size: 1.45rem; line-height: 1.08; }
+.translation-workflow ol { display: grid; gap: 9px; padding: 0; margin: 0; list-style: none; }
+.translation-workflow li { display: flex; gap: 8px; align-items: flex-start; }
+.translation-workflow li > span { display: grid; flex: 0 0 auto; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: #3388cf; color: white; font-size: .65rem; font-weight: 850; }
+.translation-workflow li p { margin: 2px 0 0; color: #3f5a73; font-size: .76rem; line-height: 1.34; }
+.workflow-note { display: flex; gap: 6px; align-items: flex-start; margin: 13px 0 0; padding-top: 11px; border-top: 1px solid #cfe3ec; color: #587188; font-size: .68rem; line-height: 1.37; }
+.workflow-note svg { flex: 0 0 auto; margin-top: 1px; color: #287d4e; }
+
+@media (max-width: 900px) {
+  .translation-workflow { grid-template-columns: 1fr; gap: 17px; }
+  .translation-workflow figure { max-width: 540px; }
+}
+
 .prompt-panel { border: 1px solid #d7e5ed; border-radius: 15px; padding: clamp(20px, 4vw, 35px); background: linear-gradient(145deg, #f1fbff, #fffefa 60%); }.prompt-heading { display: flex; gap: 12px; align-items: center; }.mini-icon { display: grid; place-items: center; width: 43px; height: 43px; border-radius: 11px; background: #fff0b9; color: #a86b00; }.prompt-heading h2 { margin: 4px 0 0; font-size: 1.8rem; }.prompt-intro { max-width: 700px; margin: 17px 0 21px; color: #425a74; font-size: .9rem; }.prompt-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 11px; margin-bottom: 18px; }.prompt-controls label { color: #49637d; font-size: .69rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }.prompt-controls input { display: block; width: 100%; height: 39px; margin-top: 6px; padding: 0 10px; border: 1px solid #c7d8e5; border-radius: 7px; outline: 0; background: white; color: var(--ink); font-size: .84rem; font-weight: 500; text-transform: none; letter-spacing: normal; }.prompt-controls input:focus { border-color: #3486ca; box-shadow: 0 0 0 3px rgba(52, 134, 202, .14); }.prompt-text { max-height: 475px; overflow: auto; padding: 18px; border: 1px solid #d8e2eb; border-radius: 10px; background: #132d51; color: #eaf3ff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .76rem; line-height: 1.6; white-space: pre-wrap; }.prompt-footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 15px; }.review-note { display: flex; align-items: center; gap: 7px; color: #687b8f; font-size: .75rem; font-weight: 700; }.review-note svg { color: #ce8e19; }.copy-button { min-height: 39px; padding: 9px 13px; border-radius: 7px; }.copy-button.copied { background: #237b4c; }
 
 /* Prompt customization is the task's main action: keep it calm, legible, and quick to scan. */
