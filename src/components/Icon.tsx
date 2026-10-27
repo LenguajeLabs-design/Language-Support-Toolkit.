@@ -1,0 +1,15 @@
+import {
+  ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, FileText,
+  Image, Languages, Lightbulb, Menu, MessageCircle, MessageSquareMore, PencilLine,
+  Search, Sparkles, X,
+} from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
+
+const icons = { ArrowRight, BookMarked, BookOpen, Check, ChevronDown, Clipboard, Cog, FileText, Image, Languages, Lightbulb, Menu, MessageCircle, MessageSquareMore, PencilLine, Search, Sparkles, X }
+
+export type IconName = keyof typeof icons
+
+export function Icon({ name, ...props }: { name: IconName } & LucideProps) {
+  const Component = icons[name]
+  return <Component aria-hidden="true" {...props} />
+}
