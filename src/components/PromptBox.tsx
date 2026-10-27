@@ -52,14 +52,16 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     }
   }
   return <section className="prompt-panel" aria-labelledby="prompt-title">
-    <div className="prompt-heading"><span className="mini-icon"><Icon name="Sparkles" size={20} /></span><div><p className="eyebrow">Copy-ready prompt</p><h2 id="prompt-title">Start with your lesson, not a generic request</h2></div></div>
-    <p className="prompt-intro">Customize the useful details, then paste this into your school-approved AI tool. Review every output before using it with students.</p>
+    <div className="prompt-heading"><span className="mini-icon"><Icon name="Sparkles" size={20} /></span><div><p className="eyebrow">Copy-ready prompt</p><h2 id="prompt-title">Make this prompt yours</h2></div></div>
+    <p className="prompt-intro">Add only the lesson details that matter, then paste the tailored prompt into your school-approved AI tool. Review every output before using it with students.</p>
     <p className="context-note"><Icon name="Check" size={15} /> Your grade, subject, and proficiency choices stay on this device while you explore. Lesson text is never saved here.</p>
-    <div className="prompt-controls">
+    <p className="prompt-context-tip"><Icon name="ArrowRight" size={15} /> Fastest path: begin with grade and subject. Add the rest only when it will change the support.</p>
+    <fieldset className="prompt-controls">
+      <legend className="sr-only">Customize this prompt</legend>
       {fields.map((field) => <label key={field}>{labels[field] || field.replaceAll('_', ' ').toLowerCase()}<input value={values[field] || ''} onChange={(event) => update(field, event.target.value)} /></label>)}
-    </div>
+    </fieldset>
     <pre className="prompt-text">{prompt}</pre>
-    <div className="prompt-footer"><span className="review-note"><Icon name="Lightbulb" size={17} /> Teacher review required</span><button className={copied ? 'copy-button copied' : 'copy-button'} onClick={copy}><Icon name={copied ? 'Check' : 'Clipboard'} size={17} />{copied ? 'Prompt copied' : 'Copy prompt'}</button></div>
+    <div className="prompt-footer"><span className="review-note"><Icon name="Lightbulb" size={17} /> Teacher review required</span><button className={copied ? 'copy-button copied' : 'copy-button'} onClick={copy}><Icon name={copied ? 'Check' : 'Clipboard'} size={17} />{copied ? 'Prompt copied' : 'Copy customized prompt'}</button></div>
     {copied && <div className="copy-success" role="status"><Icon name="Check" size={20} /><div><strong>Ready for the next step.</strong><span>Paste the prompt into your school-approved AI tool. Before teaching, check accuracy, keep the learning objective intact, and plan when students will use the language.</span></div></div>}
   </section>
 }

@@ -46,16 +46,27 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     <section className="home-hero">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow light"><span></span>November 2026 professional learning</p>
+          <p className="eyebrow light"><span></span>A practical teacher toolkit</p>
           <h1>Every Lesson Is a <em>Language</em> Lesson.</h1>
-          <p className="hero-lede">Practical strategies and AI prompts to make your existing lessons more accessible for multilingual learners.</p>
-          <div className="hero-actions"><a className="primary-button" href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Start with a lesson <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Explore strategies</a></div>
+          <p className="hero-lede">Start with a lesson you already teach. Spot one language barrier, choose a focused support, and adapt it in a few useful minutes.</p>
+          <div className="hero-actions"><a className="primary-button" href="#/strategy/find-language-demands" onClick={(event) => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}>Find the language demand <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Browse six supports</a></div>
         </div>
         <div className="hero-art" aria-label="A visual preview of a teacher-friendly resource toolkit">
           <div className="hero-blob blob-a"></div><div className="hero-blob blob-b"></div>
           <div className="hero-card hero-card-main"><div className="preview-top"><span className="tiny-book"><Icon name="BookOpen" size={17} /></span><b>Language demand</b><span className="dots">•••</span></div><p>Students need to explain <strong>how</strong> erosion changes land.</p><div className="preview-line"></div><div className="preview-pills"><span>cause</span><span>sequence</span><span>evidence</span></div></div>
           <div className="hero-card hero-card-small"><span className="tiny-icon green"><Icon name="Image" size={18} /></span><b>Word bank</b><small>Teach it. Use it.</small></div>
           <div className="hero-card hero-card-note"><Icon name="MessageCircle" size={18} /><span>“I think erosion… because…”</span></div>
+        </div>
+      </div>
+    </section>
+    <section className="lesson-moment-section" id="lesson-moments">
+      <div className="container">
+        <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose the lesson moment that is closest to yours. You can still adjust the strategy once you arrive.</p></div><span className="lesson-moment-note"><Icon name="Lightbulb" size={17} />Not sure? Start with the lesson you have.</span></div>
+        <div className="lesson-moment-grid">
+          {lessonMoments.map(([label, detail, slug]) => {
+            const strategy = getStrategy(slug)!
+            return <a className={`lesson-moment accent-${strategy.accent}`} href={`#/strategy/${slug}`} key={slug} onClick={(event) => { event.preventDefault(); onNavigate(`/strategy/${slug}`) }}><span className="lesson-moment-icon"><Icon name={strategy.icon as never} size={23} /></span><span><b>{label}</b><small>{detail}</small></span><Icon name="ArrowRight" size={17} /></a>
+          })}
         </div>
       </div>
     </section>
@@ -66,17 +77,6 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
           {[
             ['1', 'NOTICE', 'Spot one language barrier.'], ['2', 'SCAFFOLD', 'Choose a support that fits.'], ['3', 'CREATE', 'Adapt a resource with AI.'], ['4', 'REVIEW', 'Teach it—and refine it.'],
           ].map(([number, title, body], index) => <div className="framework-step" key={title}><span>{number}</span><div><b>{title}</b><small>{body}</small></div>{index < 3 && <Icon name="ArrowRight" size={20} />}</div>)}
-        </div>
-      </div>
-    </section>
-    <section className="lesson-moment-section">
-      <div className="container">
-        <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose the lesson moment that is closest to yours. You can still adjust the strategy once you arrive.</p></div><span className="lesson-moment-note"><Icon name="Lightbulb" size={17} />Not sure? Start with the lesson you have.</span></div>
-        <div className="lesson-moment-grid">
-          {lessonMoments.map(([label, detail, slug]) => {
-            const strategy = getStrategy(slug)!
-            return <a className={`lesson-moment accent-${strategy.accent}`} href={`#/strategy/${slug}`} key={slug} onClick={(event) => { event.preventDefault(); onNavigate(`/strategy/${slug}`) }}><span className="lesson-moment-icon"><Icon name={strategy.icon as never} size={23} /></span><span><b>{label}</b><small>{detail}</small></span><Icon name="ArrowRight" size={17} /></a>
-          })}
         </div>
       </div>
     </section>
@@ -104,8 +104,8 @@ function StrategyPage({ slug, onNavigate }: { slug: string; onNavigate: (path: s
   const [tab, setTab] = useState<'overview' | 'example' | 'try' | 'tips'>('overview')
   useEffect(() => setTab('overview'), [slug])
   if (!strategy) return <NotFound onNavigate={onNavigate} />
-  const tabs = [['overview', 'Overview'], ['example', 'See an example'], ['try', 'Try it'], ['tips', 'Teaching tips']] as const
-  return <section className="strategy-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span><a href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Strategies</a><span>›</span>{strategy.title}</div><header className="strategy-header"><div className={`strategy-page-icon accent-${strategy.accent}`}><Icon name={strategy.icon as never} size={34} /></div><div><p className={`eyebrow accent-text-${strategy.accent}`}>Strategy</p><h1>{strategy.title}</h1><p>{strategy.summary}</p></div></header><div className="tabs" role="tablist" aria-label={`${strategy.title} sections`}>{tabs.map(([id, label]) => <button key={id} className={tab === id ? 'active' : ''} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>)}</div>{tab === 'overview' && <Overview strategy={strategy} />}{tab === 'example' && <Example strategy={strategy} />}{tab === 'try' && <PromptBox strategy={strategy} />}{tab === 'tips' && <Tips strategy={strategy} onNavigate={onNavigate} />}</div></section>
+  const tabs = [['overview', 'Overview', 'Overview'], ['example', 'See an example', 'Example'], ['try', 'Customize prompt', 'Customize'], ['tips', 'Teaching tips', 'Tips']] as const
+  return <section className="strategy-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span><a href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Strategies</a><span>›</span>{strategy.title}</div><header className="strategy-header"><div className={`strategy-page-icon accent-${strategy.accent}`}><Icon name={strategy.icon as never} size={34} /></div><div><p className={`eyebrow accent-text-${strategy.accent}`}>Strategy</p><h1>{strategy.title}</h1><p>{strategy.summary}</p></div></header><div className="tabs" role="tablist" aria-label={`${strategy.title} sections`}>{tabs.map(([id, label, mobileLabel]) => <button key={id} className={tab === id ? 'active' : ''} role="tab" aria-label={label} aria-selected={tab === id} onClick={() => setTab(id)}><span className="desktop-tab-label" aria-hidden="true">{label}</span><span className="mobile-tab-label" aria-hidden="true">{mobileLabel}</span></button>)}</div>{tab === 'overview' && <Overview strategy={strategy} />}{tab === 'example' && <Example strategy={strategy} />}{tab === 'try' && <PromptBox strategy={strategy} />}{tab === 'tips' && <Tips strategy={strategy} onNavigate={onNavigate} />}</div></section>
 }
 
 function Overview({ strategy }: { strategy: Strategy }) {
