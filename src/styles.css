@@ -32,7 +32,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--paper); }
-body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
+body { margin: 0; min-width: 0; background: var(--paper); color: var(--ink); }
 button, input { font: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
@@ -269,3 +269,35 @@ p { line-height: 1.55; }
 @media (max-width: 680px) {
   .container { width: min(100% - 32px, 1160px); }.site-header { min-height: 64px; }.header-inner { min-height: 64px; width: min(100% - 28px, 1230px); }.brand strong { font-size: .95rem; }.brand small { font-size: .57rem; }.menu-button { display: inline-flex; }.nav { display: none; position: absolute; top: 63px; right: 0; left: 0; flex-direction: column; align-items: stretch; gap: 0; padding: 5px 18px 15px; border-bottom: 1px solid var(--line); background: #fffefa; box-shadow: 0 15px 20px rgba(11, 38, 70, .08); }.nav.open { display: flex; }.nav a { padding: 13px 0; }.nav a.active::after { top: 0; right: auto; bottom: 0; width: 3px; height: auto; }.home-hero { min-height: auto; }.hero-grid { grid-template-columns: 1fr; min-height: auto; }.hero-copy { padding: 50px 0 53px; }.hero-copy h1 { font-size: clamp(2.7rem, 12vw, 3.7rem); }.hero-lede { font-size: 1rem; }.hero-art { display: none; }.hero-actions { align-items: flex-start; flex-direction: column; }.hero-actions .primary-button { width: 100%; }.framework-section { padding: 45px 0; }.framework { grid-template-columns: 1fr 1fr; gap: 0; padding: 3px; }.framework-step { min-height: 92px; padding: 9px; }.framework-step:nth-child(odd) { border-right: 1px solid #edf0f3; }.framework-step:nth-child(-n+2) { border-bottom: 1px solid #edf0f3; }.framework-step > span { width: 28px; height: 28px; }.strategy-section { padding: 49px 0 56px; }.section-heading.split, .listing-heading { display: block; margin-bottom: 23px; }.section-heading.split h2 { font-size: 2.42rem; }.search-field { width: 100%; margin-top: 18px; }.strategy-grid { grid-template-columns: 1fr; }.strategy-card { min-height: 208px; }.workshop-band { padding: 44px 0; }.workshop-grid { grid-template-columns: 1fr; gap: 23px; }.workshop-grid > .secondary-button { grid-column: auto; width: max-content; }.listing-page, .strategy-page, .language-page, .quick-page { padding: 27px 0 55px; }.breadcrumb { margin-bottom: 19px; }.listing-heading h1, .language-header h1, .quick-intro h1 { font-size: 2.6rem; }.strategy-header { align-items: flex-start; gap: 12px; }.strategy-page-icon { width: 59px; height: 59px; border-radius: 14px; }.strategy-page-icon svg { width: 28px; }.strategy-header h1 { font-size: 2.65rem; }.strategy-header > div:last-child > p:last-child { font-size: .9rem; }.tabs { gap: 17px; overflow-x: auto; }.tabs button { flex: 0 0 auto; font-size: .72rem; }.desktop-tab-label { display: none; }.mobile-tab-label { display: inline; }.strategy-content { padding-top: 27px; }.copy-column h2, .example-heading h2, .tips-card h2 { font-size: 1.82rem; }.process-row { grid-template-columns: 1fr; }.when-card { padding: 20px; }.example-heading { display: block; }.example-tag { display: inline-block; margin-top: 12px; }.prompt-panel { margin-right: -2px; margin-left: -2px; }.prompt-heading h2 { font-size: 1.55rem; }.prompt-text { font-size: .74rem; }.prompt-footer { align-items: stretch; flex-direction: column; }.copy-button { width: 100%; }.language-grid { grid-template-columns: 1fr; }.language-card dl div { grid-template-columns: 1fr; gap: 4px; }.quick-steps { padding-top: 31px; }.quick-steps::before { left: 25px; }.quick-steps li { grid-template-columns: 50px 1fr; gap: 12px; min-height: 135px; }.quick-number { width: 50px; height: 50px; font-size: 1.25rem; }.quick-icon { display: none; }.quick-steps li > div { grid-column: 2; }.quick-steps h2 { margin-top: 2px; }.quick-cta { display: block; padding: 22px; }.quick-cta h2 { font-size: 1.5rem; }.quick-cta .primary-button { width: 100%; margin-top: 18px; }.footer-inner { align-items: flex-start; flex-direction: column; gap: 11px; }.footer-inner > p { display: none; }
 }
+
+/* Launch guidance uses the existing palette and responsive layout. */
+.hero-handoff { max-width: 570px; margin: 0 0 24px; color: #e5eef8; font-size: .95rem; line-height: 1.6; }
+.prompt-handoff { padding-left: 1.5rem; margin: 12px 0 20px; color: #314c67; line-height: 1.65; font-size: .95rem; }
+.prompt-handoff li { padding-left: 4px; margin: 5px 0; }
+.placeholder-note { color: #3d5873; font-size: .9rem; line-height: 1.6; }
+.placeholder-note code { overflow-wrap: anywhere; font-size: .86em; }
+.copy-error { padding: 15px; border: 1px solid #d7b879; border-radius: var(--radius-sm); background: #fff5df; color: #634814; font-size: .95rem; overflow-wrap: anywhere; }
+.manual-copy label { display: block; margin: 16px 0 8px; font-weight: 700; }
+.manual-copy textarea { display: block; width: 100%; min-height: 220px; padding: 15px; margin-bottom: 12px; border: 1px solid #c7d8e5; border-radius: var(--radius-sm); font: inherit; resize: vertical; }
+.manual-copy p { color: #425a74; font-size: .9rem; }
+.copy-button:disabled { opacity: .7; cursor: wait; }
+.creator-section { padding: 56px 0; background: var(--surface); }
+.creator-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
+.creator-section h2 { margin: 8px 0; font-size: 2rem; }
+.creator-role { color: #31516e; font-weight: 700; }
+.creator-copy { max-width: 720px; color: #425a74; font-size: 1rem; line-height: 1.7; }
+.creator-copy p { margin: 0 0 16px; }
+.creator-stage { padding: 14px 18px; border-left: 3px solid #3388cf; background: #eef7fc; }
+@media (max-width: 680px) {
+  .creator-grid { grid-template-columns: 1fr; gap: 16px; }
+  .creator-section { padding: 40px 0; }
+  .prompt-controls { grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); }
+}
+
+.copy-success strong { font-size: .95rem; }
+.copy-success span { font-size: .9rem; line-height: 1.5; }
+
+.process-step-with-icon { align-items: flex-start; gap: 12px; padding: 16px; }
+.process-step-with-icon .process-step-icon { width: 42px; height: 42px; }
+.process-step-label { display: block; margin-bottom: 4px; color: #176cb3; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.process-step-with-icon p { margin: 0; font-size: .9rem; line-height: 1.5; }
