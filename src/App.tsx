@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Header } from './components/Header'
-import { Icon } from './components/Icon'
+import { Icon, type IconName } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
@@ -55,6 +55,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
           <p className="eyebrow light"><span></span>A practical teacher toolkit</p>
           <h1>Every Lesson Is a <em>Language</em> Lesson.</h1>
           <p className="hero-lede">Start with a lesson you already teach. Spot one language barrier, choose a focused support, and adapt it in a few useful minutes.</p>
+          <p className="hero-handoff">Choose a support, personalize your prompt, then copy it into your preferred school-approved AI tool to create the resource.</p>
           <div className="hero-actions"><a className="primary-button" href="#/strategy/find-language-demands" onClick={(event) => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}>Find the language demand <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Browse six supports</a></div>
         </div>
         <div className="hero-art" aria-label="A visual preview of a teacher-friendly resource toolkit">
@@ -96,6 +97,17 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     <section className="workshop-band">
       <div className="container workshop-grid"><div><p className="eyebrow light">In the workshop</p><h2>Bring one lesson. Leave with one next move.</h2><p>This toolkit is made for the moment after the slide: when you have a real classroom resource in front of you and want to make it more accessible.</p></div><ol><li><span>1</span>Choose an existing lesson.</li><li><span>2</span>Identify one language barrier.</li><li><span>3</span>Select one strategy.</li><li><span>4</span>Copy, adapt, and review a prompt.</li></ol><a className="secondary-button" href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Use the quick-start guide <Icon name="ArrowRight" size={17} /></a></div>
     </section>
+    <section className="creator-section" aria-labelledby="creator-title">
+      <div className="container creator-grid">
+        <div><p className="eyebrow">About the creator</p><h2 id="creator-title">Federico Orozco</h2><p className="creator-role">EAL Specialist</p></div>
+        <div className="creator-copy">
+          <p>I created this toolkit to help every teacher scaffold learning more intentionally. With more than 17 years of experience teaching English to students in international contexts, I want to make thoughtful language-support decisions more accessible in everyday planning.</p>
+          <p>I hold a BA in Italian, an MS in TEFL, and a CELTA, alongside further training and certifications in UDL, IB, and PYP.</p>
+          <p>The toolkit helps teachers notice language barriers, choose a focused scaffold, and understand why it may help—while preserving academic challenge. AI can help prepare materials; teachers bring the knowledge of their learners needed to review, adapt, and teach them.</p>
+          <p className="creator-stage">This is an early-stage toolkit awaiting classroom trials and colleague review.</p>
+        </div>
+      </div>
+    </section>
   </>
 }
 
@@ -115,7 +127,8 @@ function StrategyPage({ slug, onNavigate }: { slug: string; onNavigate: (path: s
 }
 
 function Overview({ strategy }: { strategy: Strategy }) {
-  return <div className="strategy-content overview-content"><div className="copy-column"><p className="eyebrow">Why it works</p><h2>Make the language visible so students can work with the idea.</h2><p className="body-large">{strategy.why}</p><div className="process-row">{strategy.steps.map((step, index) => <div className="process-step" key={step}><span>{index + 1}</span><p>{step}</p></div>)}</div></div><aside className={`when-card accent-${strategy.accent}`}><p className="eyebrow">When to use this</p><ul>{strategy.uses.map((use) => <li key={use}><Icon name="Check" size={17} />{use}</li>)}</ul></aside></div>
+  const demandIcons: IconName[] = ['BookOpen', 'MessageCircle', 'Search', 'Lightbulb']
+  return <div className="strategy-content overview-content"><div className="copy-column"><p className="eyebrow">Why it works</p><h2>Make the language visible so students can work with the idea.</h2><p className="body-large">{strategy.why}</p><div className="process-row">{strategy.steps.map((step, index) => <div className={strategy.slug === 'find-language-demands' ? 'process-step process-step-with-icon' : 'process-step'} key={step}>{strategy.slug === 'find-language-demands' ? <><span className="process-step-icon"><Icon name={demandIcons[index]} size={22} strokeWidth={1.8} /></span><div><small className="process-step-label">Step {index + 1}</small><p>{step}</p></div></> : <><span>{index + 1}</span><p>{step}</p></>}</div>)}</div></div><aside className={`when-card accent-${strategy.accent}`}><p className="eyebrow">When to use this</p><ul>{strategy.uses.map((use) => <li key={use}><Icon name="Check" size={17} />{use}</li>)}</ul></aside></div>
 }
 
 function WordBankTable() {
@@ -147,7 +160,7 @@ function KeyLanguageUses({ onNavigate }: { onNavigate: (path: string) => void })
 
 function QuickStart({ onNavigate }: { onNavigate: (path: string) => void }) {
   return <section className="quick-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span>Workshop quick-start</div><div className="quick-intro"><p className="eyebrow">Workshop companion</p><h1>Five minutes to one thoughtful next step.</h1><p>Use this during or after the session. You do not need a perfect plan—just a real lesson and one learner-facing barrier to investigate.</p></div><ol className="quick-steps">{[
-    ['Choose a lesson', 'Open a lesson, slide, text, task, or assessment you will teach soon.', 'BookOpen'], ['Notice one barrier', 'What must students understand or communicate in English? Where might the language hide the idea?', 'Search'], ['Select a strategy', 'Choose one focused support. Start with the barrier, not the tool.', 'Lightbulb'], ['Copy and adapt', 'Use a prompt, add your classroom details, and paste only appropriate content into your approved AI tool.', 'Clipboard'], ['Review and teach', 'Check accuracy, decide how students will use the language, and refine the support after the lesson.', 'Check'],
+    ['Choose a lesson', 'Open a lesson, slide, text, task, or assessment you will teach soon.', 'BookOpen'], ['Notice one barrier', 'What must students understand or communicate in English? Where might the language hide the idea?', 'Search'], ['Select a strategy', 'Choose one focused support. Start with the barrier, not the tool.', 'Lightbulb'], ['Copy and adapt', 'Personalize and copy your prompt, then paste it into your school-approved AI tool. Replace the bracketed placeholder with appropriate lesson material to generate your resource.', 'Clipboard'], ['Review and teach', 'Check accuracy, decide how students will use the language, and refine the support after the lesson.', 'Check'],
   ].map(([title, text, icon], index) => <li key={title}><span className="quick-number">{index + 1}</span><span className="quick-icon"><Icon name={icon as never} size={23} /></span><div><h2>{title}</h2><p>{text}</p></div></li>)}</ol><div className="quick-cta"><div><p className="eyebrow">Ready to begin?</p><h2>Start by noticing the language demand.</h2></div><a className="primary-button" href="#/strategy/find-language-demands" onClick={(event) => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}>Find language demands <Icon name="ArrowRight" size={18} /></a></div></div></section>
 }
 
