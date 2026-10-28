@@ -10,6 +10,7 @@ import erosionCue from './assets/learning/erosion-cue.png'
 import sedimentCue from './assets/learning/sediment-cue.png'
 import surfaceCue from './assets/learning/surface-cue.png'
 import imageTranslationWorkflow from './assets/learning/image-translation-workflow.png'
+import languageToolkitMark from './assets/brand/language-toolkit-mark.png'
 
 function routeFromHash() {
   const route = window.location.hash.replace(/^#/, '')
@@ -41,15 +42,16 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [query, setQuery] = useState('')
   const visibleStrategies = useMemo(() => strategies.filter((strategy) => `${strategy.title} ${strategy.summary}`.toLowerCase().includes(query.toLowerCase())), [query])
   const lessonMoments = [
-    ['A reading, worksheet, or AI text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
-    ['Important vocabulary', 'Choose and teach the words that unlock the lesson.', 'build-a-word-bank'],
-    ['A slide, chart, or diagram', 'Create a reviewed multilingual access point.', 'translate-a-visual'],
-    ['A discussion or oral response', 'Prepare language for meaningful participation.', 'support-speaking'],
-    ['A paragraph or extended task', 'Support structure and reasoning in writing.', 'scaffold-writing'],
-    ['A lesson I am still planning', 'Notice the language work before choosing a scaffold.', 'find-language-demands'],
+    ['01', 'Reading + text', 'A reading, worksheet, or AI text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
+    ['02', 'Vocabulary', 'Important vocabulary', 'Choose and teach the words that unlock the lesson.', 'build-a-word-bank'],
+    ['03', 'Visuals', 'A slide, chart, or diagram', 'Create a reviewed multilingual access point.', 'translate-a-visual'],
+    ['04', 'Conversation', 'A discussion or oral response', 'Prepare language for meaningful participation.', 'support-speaking'],
+    ['05', 'Writing', 'A paragraph or extended task', 'Support structure and reasoning in writing.', 'scaffold-writing'],
+    ['06', 'Planning', 'A lesson I am still planning', 'Notice the language work before choosing a scaffold.', 'find-language-demands'],
   ] as const
   return <>
     <section className="home-hero">
+      <div className="hero-topography" aria-hidden="true"></div>
       <div className="container hero-grid">
         <div className="hero-copy">
           <p className="eyebrow light"><span></span>A practical teacher toolkit</p>
@@ -57,22 +59,26 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
           <p className="hero-lede">Start with a lesson you already teach. Spot one language barrier, choose a focused support, and adapt it in a few useful minutes.</p>
           <p className="hero-handoff">Choose a support, personalize your prompt, then copy it into your preferred school-approved AI tool to create the resource.</p>
           <div className="hero-actions"><a className="primary-button" href="#/strategy/find-language-demands" onClick={(event) => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}>Find the language demand <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Browse six supports</a></div>
+          <p className="hero-reassurance"><Icon name="Check" size={16} />Bring one lesson, not a perfect plan.</p>
         </div>
-        <div className="hero-art" aria-label="A visual preview of a teacher-friendly resource toolkit">
-          <div className="hero-blob blob-a"></div><div className="hero-blob blob-b"></div>
-          <div className="hero-card hero-card-main"><div className="preview-top"><span className="tiny-book"><Icon name="BookOpen" size={17} /></span><b>Language demand</b><span className="dots">•••</span></div><p>Students need to explain <strong>how</strong> erosion changes land.</p><div className="preview-line"></div><div className="preview-pills"><span>cause</span><span>sequence</span><span>evidence</span></div></div>
-          <div className="hero-card hero-card-small"><span className="tiny-icon green"><Icon name="Image" size={18} /></span><b>Word bank</b><small>Teach it. Use it.</small></div>
-          <div className="hero-card hero-card-note"><Icon name="MessageCircle" size={18} /><span>“I think erosion… because…”</span></div>
-        </div>
+        <aside className="hero-art" aria-label="An example lesson field note showing how to find a language demand">
+          <div className="lesson-snapshot">
+            <div className="snapshot-top"><span><Icon name="BookOpen" size={17} />Lesson field note</span><span>Grade 4 · Science</span></div>
+            <div className="snapshot-focus"><img src={erosionCue} alt="A river carrying soil and rocks away from a bank" /><div><span>Students need to explain</span><strong>how erosion changes land.</strong></div></div>
+            <div className="snapshot-signals"><span>cause</span><span>sequence</span><span>evidence</span></div>
+            <div className="snapshot-next"><div><span>One next move</span><strong>Build a visual word bank</strong></div><Icon name="ArrowRight" size={20} /></div>
+          </div>
+          <p className="hero-art-caption"><Icon name="Lightbulb" size={16} />One sharp observation can become a usable scaffold.</p>
+        </aside>
       </div>
     </section>
     <section className="lesson-moment-section" id="lesson-moments">
       <div className="container">
         <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose the lesson moment that is closest to yours. You can still adjust the strategy once you arrive.</p></div><span className="lesson-moment-note"><Icon name="Lightbulb" size={17} />Not sure? Start with the lesson you have.</span></div>
         <div className="lesson-moment-grid">
-          {lessonMoments.map(([label, detail, slug]) => {
+          {lessonMoments.map(([number, category, label, detail, slug]) => {
             const strategy = getStrategy(slug)!
-            return <a className={`lesson-moment accent-${strategy.accent}`} href={`#/strategy/${slug}`} key={slug} onClick={(event) => { event.preventDefault(); onNavigate(`/strategy/${slug}`) }}><span className="lesson-moment-icon"><Icon name={strategy.icon as never} size={23} /></span><span><b>{label}</b><small>{detail}</small></span><Icon name="ArrowRight" size={17} /></a>
+            return <a className={`lesson-moment accent-${strategy.accent}`} href={`#/strategy/${slug}`} key={slug} onClick={(event) => { event.preventDefault(); onNavigate(`/strategy/${slug}`) }}><span className="lesson-moment-index">{number}</span><span className="lesson-moment-icon"><Icon name={strategy.icon as never} size={23} /></span><span><small className="lesson-moment-category">{category}</small><b>{label}</b><small>{detail}</small></span><Icon name="ArrowRight" size={17} /></a>
           })}
         </div>
       </div>
@@ -130,8 +136,124 @@ function WordBankTable() {
   return <div className="wordbank-table"><div className="table-title">Word bank: Landforms and erosion</div><div className="wordbank-head"><b>Word</b><b>Meaning</b><b>Visual cue</b><b>Say it</b></div>{rows.map(({ word, meaning, sentence, image, alt }) => <div className="wordbank-row" key={word}><strong>{word}</strong><span>{meaning}</span><span className="wordbank-image"><img src={image} alt={alt} /></span><span>{sentence}</span></div>)}<p className="wordbank-note"><Icon name="Eye" size={13} />Use each image as a quick cue, then ask students to say the word and use it in a sentence.</p></div>
 }
 
+function AdaptedTextExample() {
+  const chunks = [
+    ['What is a volcano?', 'A volcano is a landform. It forms when magma moves up from inside Earth.'],
+    ['How does it erupt?', 'Pressure pushes magma, ash, and gas through an opening in Earth’s surface.'],
+    ['What can change?', 'Volcanoes can be on land or under the ocean. An eruption can change the land around it.'],
+  ]
+  const terms = ['volcano', 'magma', 'pressure', 'eruption']
+  return <div className="adapted-text-example">
+    <p className="adapted-text-intro">Read one idea at a time.</p>
+    <div className="adapted-text-chunks">{chunks.map(([heading, text], index) => <section key={heading}><span>{index + 1}</span><div><h3>{heading}</h3><p>{text}</p></div></section>)}</div>
+    <section className="adapted-text-terms" aria-labelledby="adapted-text-terms-title"><h3 id="adapted-text-terms-title">Key words to notice</h3><div>{terms.map((term) => <span key={term}>{term}</span>)}</div></section>
+  </div>
+}
+
+function VisualTranslationPlan() {
+  const supports = [
+    ['Keep English visible', 'Keep the original English labels in place.'],
+    ['Add a verified bridge', 'Add one home-language label beside each key term.'],
+    ['Show the sequence', 'Use arrows, then rehearse: “First… Then…”'],
+  ]
+  return <div className="visual-translation-plan">
+    <p className="visual-translation-intro">Use another language to connect to meaning—not to replace the English.</p>
+    <ol>{supports.map(([title, text], index) => <li key={title}><span>{index + 1}</span><div><strong>{title}</strong><p>{text}</p></div></li>)}</ol>
+    <section className="visual-translation-say" aria-labelledby="visual-translation-say-title"><Icon name="MessageCircle" size={16} /><div><h3 id="visual-translation-say-title">Say it in English</h3><p>“First, water ___. Then, it ___.”</p></div></section>
+  </div>
+}
+
+function WritingScaffold() {
+  const frames = [
+    ['Claim', '“___ is the best insulator because ___.”'],
+    ['Evidence', '“In our test, ___.”'],
+    ['Reasoning', '“This evidence shows ___ because ___.”'],
+  ]
+  const words = ['insulator', 'temperature', 'transfer', 'evidence', 'therefore']
+  return <div className="writing-scaffold">
+    <p className="writing-scaffold-intro">Build your paragraph in three moves.</p>
+    <ol className="writing-plan">
+      <li><span>1</span><div><strong>Make a claim</strong><p>Which material is the best insulator?</p></div></li>
+      <li><span>2</span><div><strong>Add evidence</strong><p>What did you notice in the test?</p></div></li>
+      <li><span>3</span><div><strong>Explain your reasoning</strong><p>Why does that evidence support your claim?</p></div></li>
+    </ol>
+    <section className="writing-frames" aria-labelledby="writing-frames-title">
+      <h3 id="writing-frames-title">Optional model language</h3>
+      <ul>{frames.map(([label, frame]) => <li key={label}><strong>{label}</strong><span>{frame}</span></li>)}</ul>
+    </section>
+    <section className="writing-word-bank" aria-labelledby="writing-word-bank-title">
+      <h3 id="writing-word-bank-title">Useful words</h3>
+      <div>{words.map((word) => <span key={word}>{word}</span>)}</div>
+    </section>
+  </div>
+}
+
+function LanguageDemandNotice() {
+  const terms = ['compare', 'rate of change', 'initial value', 'representation', 'justify']
+  return <div className="demand-notice">
+    <section className="demand-section">
+      <h3>Terms to unlock</h3>
+      <div className="demand-terms">{terms.map((term) => <span key={term}>{term}</span>)}</div>
+    </section>
+    <section className="demand-section demand-task">
+      <h3>Students will need to</h3>
+      <p>Compare two rates of change, then justify which is greater.</p>
+    </section>
+    <section className="demand-section demand-frame" aria-labelledby="demand-frame-title">
+      <h3 id="demand-frame-title">Optional language frame</h3>
+      <p><span>The rate of change for ___ is ___,</span><span>while ___ is ___.</span><span>Therefore, ___ has the greater rate of change</span><span>because ___.</span></p>
+    </section>
+    <section className="demand-support" aria-labelledby="demand-support-title">
+      <Icon name="Lightbulb" size={17} />
+      <div><h3 id="demand-support-title">Start here</h3><p>Preteach the terms in a visual word bank, then rehearse the comparison aloud before writing.</p></div>
+    </section>
+  </div>
+}
+
+function SpeakingScaffold() {
+  const words = ['inequality', 'taxes', 'protest', 'cause', 'effect']
+  return <div className="speaking-scaffold">
+    <section className="speaking-think">
+      <h3>Think first</h3>
+      <p>Which cause had the biggest impact?</p>
+      <div>{words.map((word) => <span key={word}>{word}</span>)}</div>
+    </section>
+    <section className="speaking-rehearse" aria-labelledby="speaking-rehearse-title">
+      <h3 id="speaking-rehearse-title">Rehearse with a partner</h3>
+      <div className="speaking-moves">
+        <div><strong>Share an idea</strong><p>“I think ___ was important because ___.”</p></div>
+        <div><strong>Build on an idea</strong><p>“I want to add to ___’s idea. ___.”</p></div>
+      </div>
+    </section>
+    <section className="speaking-share" aria-labelledby="speaking-share-title">
+      <Icon name="MessageCircle" size={17} />
+      <div><h3 id="speaking-share-title">When you’re ready</h3><p>Choose one idea your pair is ready to explain.</p></div>
+    </section>
+  </div>
+}
+
 function Example({ strategy }: { strategy: Strategy }) {
-  return <div className="strategy-content"><div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div><div className="before-after"><article className="resource-card original"><div className="resource-label"><span></span>{strategy.example.originalLabel}</div><p>{strategy.example.original}</p></article><div className="example-arrow"><Icon name="ArrowRight" size={23} /></div><article className={`resource-card improved accent-${strategy.accent} ${strategy.slug === 'adapt-a-text' ? 'with-visual-support' : ''}`}><div className="resource-label"><span></span>{strategy.example.improvedLabel}</div>{strategy.example.type === 'wordbank' ? <WordBankTable /> : <p>{strategy.example.improved}</p>}{strategy.slug === 'adapt-a-text' && <figure className="volcano-visual"><img src={volcanoSupport} alt="Cutaway illustration of an erupting volcano with magma, ash, and layers of rock" /><figcaption><Icon name="Eye" size={14} /><span><b>Teach with the visual:</b> point to magma, ash, and the Earth’s surface as students encounter the words.</span></figcaption></figure>}</article></div>{strategy.slug === 'translate-a-visual' && <section className="translation-workflow" aria-labelledby="translation-workflow-title"><figure><img src={imageTranslationWorkflow} alt="A visual moving from a photographed water-cycle diagram to a reviewed diagram with added language labels" /></figure><div><p className="eyebrow">A visual workflow</p><h3 id="translation-workflow-title">Translate the image—then teach from it.</h3><ol><li><span>1</span><p>Capture a non-identifying slide, chart, or diagram.</p></li><li><span>2</span><p>Use your school-approved image translation tool to create a draft.</p></li><li><span>3</span><p>Review academic terms, placement, and readability before students see it.</p></li></ol><p className="workflow-note"><Icon name="ShieldCheck" size={15} />Google Translate can be one option; follow your school’s privacy guidance and verify the wording.</p></div></section>}<section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section></div>
+  const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
+    : strategy.example.type === 'wordbank' ? <WordBankTable />
+      : strategy.example.type === 'visual' ? <VisualTranslationPlan />
+        : strategy.example.type === 'writing' ? <WritingScaffold />
+          : strategy.example.type === 'demands' ? <LanguageDemandNotice />
+            : strategy.example.type === 'speaking' ? <SpeakingScaffold />
+              : <p>{strategy.example.improved}</p>
+  return <div className="strategy-content">
+    <div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div>
+    <div className="before-after">
+      <article className="resource-card original"><div className="resource-label"><span></span>{strategy.example.originalLabel}</div><p>{strategy.example.original}</p></article>
+      <div className="example-arrow"><Icon name="ArrowRight" size={23} /></div>
+      <article className={`resource-card improved accent-${strategy.accent} ${strategy.slug === 'adapt-a-text' ? 'with-visual-support' : ''}`}>
+        <div className="resource-label"><span></span>{strategy.example.improvedLabel}</div>
+        {improvedExample}
+        {strategy.slug === 'adapt-a-text' && <figure className="volcano-visual"><img src={volcanoSupport} alt="Cutaway illustration of an erupting volcano with magma, ash, and layers of rock" /><figcaption><Icon name="Eye" size={14} /><span><b>Teach with the visual:</b> point to magma, ash, and the Earth’s surface as students encounter the words.</span></figcaption></figure>}
+      </article>
+    </div>
+    {strategy.slug === 'translate-a-visual' && <section className="translation-workflow" aria-labelledby="translation-workflow-title"><figure><img src={imageTranslationWorkflow} alt="A visual moving from a photographed water-cycle diagram to a reviewed diagram with added language labels" /></figure><div><p className="eyebrow">A visual workflow</p><h3 id="translation-workflow-title">Translate the image—then teach from it.</h3><ol><li><span>1</span><p>Capture a non-identifying slide, chart, or diagram.</p></li><li><span>2</span><p>Use your school-approved image translation tool to create a draft.</p></li><li><span>3</span><p>Review academic terms, placement, and readability before students see it.</p></li></ol><p className="workflow-note"><Icon name="ShieldCheck" size={15} />Google Translate can be one option; follow your school’s privacy guidance and verify the wording.</p></div></section>}
+    <section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section>
+  </div>
 }
 
 function Tips({ strategy, onNavigate }: { strategy: Strategy; onNavigate: (path: string) => void }) {
@@ -161,18 +283,19 @@ function Footer({ onNavigate }: { onNavigate: (path: string) => void }) {
     { name: 'ReadLinguaFlow', detail: 'readlinguaflow.com', url: 'https://readlinguaflow.com/' },
     { name: 'Federico Orozco', detail: 'federicoorozco.co', url: 'https://federicoorozco.co/' },
     { name: 'Lingua Strategies', detail: 'lenguajelabs-design.github.io', url: 'https://lenguajelabs-design.github.io/Lingua-Strategies/' },
+    { name: 'Scaffolded', detail: 'scaffolded.app', url: 'https://www.scaffolded.app/' },
   ]
   return <footer className="site-footer">
     <div className="container">
       <div className="footer-main">
         <div className="footer-intro">
-          <a className="brand footer-brand" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}><span className="brand-mark"><Icon name="BookOpen" size={28} /></span><span><strong>Language Support Toolkit</strong><small>Every lesson is a language lesson.</small></span></a>
+          <a className="brand footer-brand" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}><img className="brand-mark brand-toolkit-mark" src={languageToolkitMark} alt="" aria-hidden="true" /><span><strong>Language Support Toolkit</strong><small>Every lesson is a language lesson.</small></span></a>
           <p>Helping teachers choose purposeful language support while keeping academic challenge intact.</p>
           <p className="footer-creator">Created by <a href="https://federicoorozco.co/">Federico Orozco, EAL Specialist</a>, drawing on more than 17 years of teaching English in international contexts.</p>
         </div>
         <nav className="footer-projects" aria-labelledby="footer-projects-title">
           <h2 id="footer-projects-title">More from Lenguaje Labs</h2>
-          <div className="footer-project-grid">{projects.map((project) => <a className="footer-project" href={project.url} key={project.name}><span><strong>{project.name}</strong><small>{project.detail}</small></span><Icon name="ArrowRight" size={17} /></a>)}</div>
+          <div className="footer-project-grid">{projects.map((project) => <a className="footer-project" href={project.url} target="_blank" rel="noreferrer" key={project.name}><span><strong>{project.name}</strong><small>{project.detail}</small></span><Icon name="ArrowRight" size={17} /></a>)}</div>
         </nav>
       </div>
       <div className="footer-bottom">

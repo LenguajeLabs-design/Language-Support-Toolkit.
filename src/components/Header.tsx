@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Icon } from './Icon'
+import languageToolkitMark from '../assets/brand/language-toolkit-mark.png'
 
 type HeaderProps = { path: string; onNavigate: (path: string) => void }
 
@@ -16,7 +17,7 @@ export function Header({ path, onNavigate }: HeaderProps) {
   return <header className="site-header">
     <div className="header-inner">
       <a className="brand" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }} aria-label="Language Support Toolkit home">
-        <span className="brand-mark"><Icon name="BookOpen" size={31} strokeWidth={1.7} /></span>
+        <img className="brand-mark brand-toolkit-mark" src={languageToolkitMark} alt="" aria-hidden="true" />
         <span><strong>Language Support Toolkit</strong><small>Every Lesson Is a Language Lesson</small></span>
       </a>
       <button className="menu-button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="primary-navigation">
