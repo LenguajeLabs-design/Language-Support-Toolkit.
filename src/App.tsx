@@ -41,6 +41,10 @@ function App() {
 function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [query, setQuery] = useState('')
   const visibleStrategies = useMemo(() => strategies.filter((strategy) => `${strategy.title} ${strategy.summary}`.toLowerCase().includes(query.toLowerCase())), [query])
+  const scrollToLessonMoments = () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    document.getElementById('lesson-moments')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+  }
   const lessonMoments = [
     ['01', 'Reading + text', 'A reading, worksheet, or AI text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
     ['02', 'Vocabulary', 'Important vocabulary', 'Choose and teach the words that unlock the lesson.', 'build-a-word-bank'],
@@ -52,23 +56,25 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
   return <>
     <section className="home-hero">
       <div className="hero-topography" aria-hidden="true"></div>
+      <div className="hero-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
       <div className="container hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow light"><span></span>A practical teacher toolkit</p>
-          <h1>Every Lesson Is a <em>Language</em> Lesson.</h1>
-          <p className="hero-lede">Start with a lesson you already teach. Spot one language barrier, choose a focused support, and adapt it in a few useful minutes.</p>
-          <p className="hero-handoff">Choose a support, personalize your prompt, then copy it into your preferred school-approved AI tool to create the resource.</p>
-          <div className="hero-actions"><a className="primary-button" href="#/strategy/find-language-demands" onClick={(event) => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}>Find the language demand <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Browse six supports</a></div>
-          <p className="hero-reassurance"><Icon name="Check" size={16} />Bring one lesson, not a perfect plan.</p>
+          <p className="eyebrow light"><span></span>Language support for real lessons</p>
+          <h1>Make the next lesson <em>easier to enter.</em></h1>
+          <p className="hero-lede">Bring a slide, text, discussion, or writing task. Notice the language students need, then choose one purposeful support without lowering the thinking.</p>
+          <div className="hero-actions"><a className="primary-button hero-primary-action" href="#lesson-moments" onClick={(event) => { event.preventDefault(); scrollToLessonMoments() }}>Choose a lesson moment <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Explore six supports</a></div>
+          <div className="hero-steps" aria-label="How the toolkit works"><div><span>01</span><p><b>Bring</b> one real lesson.</p></div><div><span>02</span><p><b>Notice</b> one language barrier.</p></div><div><span>03</span><p><b>Leave with</b> a usable next move.</p></div></div>
+          <p className="hero-reassurance"><Icon name="Check" size={16} />Built for the planning moment right before teaching.</p>
         </div>
         <aside className="hero-art" aria-label="An example lesson field note showing how to find a language demand">
           <div className="lesson-snapshot">
             <div className="snapshot-top"><span><Icon name="BookOpen" size={17} />Lesson field note</span><span>Grade 4 · Science</span></div>
             <div className="snapshot-focus"><img src={erosionCue} alt="A river carrying soil and rocks away from a bank" /><div><span>Students need to explain</span><strong>how erosion changes land.</strong></div></div>
+            <div className="snapshot-task"><span>Classroom task</span><p>Explain how wind and water change land over time.</p></div>
             <div className="snapshot-signals"><span>cause</span><span>sequence</span><span>evidence</span></div>
             <div className="snapshot-next"><div><span>One next move</span><strong>Build a visual word bank</strong></div><Icon name="ArrowRight" size={20} /></div>
           </div>
-          <p className="hero-art-caption"><Icon name="Lightbulb" size={16} />One sharp observation can become a usable scaffold.</p>
+          <p className="hero-art-caption"><Icon name="Lightbulb" size={16} />One sharp observation becomes a usable scaffold.</p>
         </aside>
       </div>
     </section>

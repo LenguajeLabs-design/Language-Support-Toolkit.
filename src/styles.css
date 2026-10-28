@@ -374,3 +374,70 @@ p { line-height: 1.55; }
   .footer-project:last-child:nth-child(odd) { grid-column: auto; }
   .footer-project { min-height: 96px; }
 }
+
+/* Homepage landing screen: a practical field guide rather than a generic product hero. */
+.home-hero { min-height: 650px; }
+.home-hero::before { background: radial-gradient(circle at 78% 25%, rgba(116, 207, 185, .29), transparent 20rem), radial-gradient(circle at 13% 86%, rgba(70, 145, 216, .22), transparent 24rem), linear-gradient(117deg, #061d3d 0%, #0a396d 53%, #075175 100%); }
+.hero-topography { opacity: .38; background-size: 330px 250px, 400px 300px; }
+.hero-orbit { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+.hero-orbit span { position: absolute; border: 1px solid rgba(177, 229, 218, .18); border-radius: 50%; }
+.hero-orbit span:nth-child(1) { width: 580px; height: 580px; top: -325px; right: -105px; }
+.hero-orbit span:nth-child(2) { width: 440px; height: 440px; top: -252px; right: -35px; }
+.hero-orbit span:nth-child(3) { width: 260px; height: 260px; top: -160px; right: 54px; border-color: rgba(199, 238, 204, .27); }
+.hero-grid { grid-template-columns: minmax(0, 1.08fr) minmax(360px, .82fr); min-height: 650px; gap: clamp(42px, 7vw, 108px); }
+.hero-copy { padding: 92px 0 84px; }
+.hero-copy h1 { max-width: 710px; margin: 15px 0 21px; font-size: clamp(3.4rem, 6.7vw, 5.95rem); line-height: .98; }
+.hero-copy h1 em { display: block; color: #c7efcf; }
+.hero-lede { max-width: 590px; margin: 0 0 31px; color: #e3eff7; font-size: 1.18rem; line-height: 1.62; }
+.hero-primary-action { min-height: 49px; padding-right: 20px; padding-left: 20px; background: #176db4; }
+.hero-primary-action:hover { background: #105c9f; }
+.hero-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; max-width: 618px; margin-top: 36px; border-top: 1px solid rgba(205, 231, 242, .25); border-bottom: 1px solid rgba(205, 231, 242, .25); }
+.hero-steps > div { min-height: 79px; padding: 14px 16px 13px 0; border-right: 1px solid rgba(205, 231, 242, .2); }
+.hero-steps > div + div { padding-left: 16px; }
+.hero-steps > div:last-child { border-right: 0; }
+.hero-steps span { display: block; color: #8bd8dd; font-size: .64rem; font-weight: 850; letter-spacing: .12em; }
+.hero-steps p { margin: 6px 0 0; color: #c8d9e9; font-size: .73rem; line-height: 1.42; }
+.hero-steps b { color: #f7fbff; }
+.hero-reassurance { margin-top: 19px; }
+.hero-art { padding-top: 20px; }
+.lesson-snapshot { position: relative; padding: 20px; border-color: rgba(222, 246, 237, .78); border-radius: 22px; box-shadow: 0 31px 70px rgba(0, 20, 49, .37); transform: rotate(1.5deg); }
+.lesson-snapshot::after { position: absolute; top: 19px; right: 19px; width: 9px; height: 9px; border-radius: 50%; background: #53b986; box-shadow: 0 0 0 5px #e8f6ed; content: ""; }
+.snapshot-top { padding-bottom: 16px; }
+.snapshot-focus { grid-template-columns: 96px 1fr; gap: 17px; padding: 20px 0 17px; }
+.snapshot-focus img { width: 96px; height: 96px; padding: 7px; border-radius: 16px; }
+.snapshot-focus strong { font-size: 1.56rem; }
+.snapshot-task { margin: 0 0 15px; padding: 11px 12px; border-left: 3px solid #5caed9; border-radius: 0 9px 9px 0; background: #f2f8fc; }
+.snapshot-task span { display: block; color: #46718d; font-size: .62rem; font-weight: 820; letter-spacing: .08em; text-transform: uppercase; }
+.snapshot-task p { margin: 4px 0 0; color: #254867; font-size: .78rem; font-weight: 700; line-height: 1.4; }
+.snapshot-signals { padding: 13px 0 17px; }
+.snapshot-next { padding: 14px 15px; }
+.hero-art-caption { margin-top: 20px; }
+
+@media (max-width: 980px) {
+  .home-hero, .hero-grid { min-height: 610px; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, .76fr); gap: 28px; }
+  .hero-copy h1 { font-size: clamp(3.35rem, 7vw, 4.85rem); }
+  .hero-art { transform: scale(.91); transform-origin: right center; }
+}
+
+@media (max-width: 680px) {
+  .home-hero, .hero-grid { min-height: auto; }
+  .hero-copy { padding: 50px 0 25px; }
+  .hero-copy h1 { margin: 13px 0 18px; font-size: clamp(3rem, 13vw, 4.1rem); }
+  .hero-lede { margin-bottom: 25px; font-size: 1rem; }
+  .hero-actions { gap: 10px; }
+  .hero-actions .hero-primary-action { width: 100%; }
+  .hero-steps { margin-top: 28px; }
+  .hero-steps > div { min-height: 84px; padding: 12px 8px 11px 0; }
+  .hero-steps > div + div { padding-left: 9px; }
+  .hero-steps p { font-size: .65rem; }
+  .hero-art { padding-top: 0; padding-bottom: 46px; transform: none; }
+  .lesson-snapshot { padding: 15px; border-radius: 17px; transform: none; }
+  .lesson-snapshot::after { top: 15px; right: 15px; }
+  .snapshot-focus { grid-template-columns: 75px 1fr; gap: 13px; padding: 15px 0 13px; }
+  .snapshot-focus img { width: 75px; height: 75px; border-radius: 12px; }
+  .snapshot-focus strong { font-size: 1.22rem; }
+  .snapshot-task { margin-bottom: 12px; padding: 10px 11px; }
+  .snapshot-task p { font-size: .73rem; }
+  .hero-art-caption { margin-top: 14px; }
+}
