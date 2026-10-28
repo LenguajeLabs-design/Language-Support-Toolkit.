@@ -26,3 +26,14 @@ for (const strategy of strategies) {
     assert.doesNotMatch(prompt, /{{|undefined|null|Home language\(s\) students use:/)
   })
 }
+
+test('build-a-word-bank requests a visual table with a flexible translation column', () => {
+  const strategy = strategies.find(({ slug }) => slug === 'build-a-word-bank')
+  assert.ok(strategy)
+  const prompt = buildPrompt(strategy.prompt, { ...defaultValues, HOME_LANGUAGE: 'Spanish' })
+
+  for (const phrase of ['colorful, classroom-ready word-bank table', 'English term', 'Home-language translation', 'Kid-friendly meaning', 'Visual cue', 'image-generation direction', 'three-column table']) {
+    assert.ok(prompt.includes(phrase), phrase)
+  }
+  assert.ok(prompt.includes('Home language(s) students use: Spanish'))
+})
