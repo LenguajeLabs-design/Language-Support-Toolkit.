@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-Open the printed local URL. Run a production check with:
+Open the printed local URL. Run the prompt-personalization regression checks with `npm test` (Node.js 22.6 or newer). Run a production check with:
 
 ```bash
 npm run build
