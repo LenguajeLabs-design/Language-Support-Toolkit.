@@ -97,17 +97,6 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     <section className="workshop-band">
       <div className="container workshop-grid"><div><p className="eyebrow light">In the workshop</p><h2>Bring one lesson. Leave with one next move.</h2><p>This toolkit is made for the moment after the slide: when you have a real classroom resource in front of you and want to make it more accessible.</p></div><ol><li><span>1</span>Choose an existing lesson.</li><li><span>2</span>Identify one language barrier.</li><li><span>3</span>Select one strategy.</li><li><span>4</span>Copy, adapt, and review a prompt.</li></ol><a className="secondary-button" href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Use the quick-start guide <Icon name="ArrowRight" size={17} /></a></div>
     </section>
-    <section className="creator-section" aria-labelledby="creator-title">
-      <div className="container creator-grid">
-        <div><p className="eyebrow">About the creator</p><h2 id="creator-title">Federico Orozco</h2><p className="creator-role">EAL Specialist</p></div>
-        <div className="creator-copy">
-          <p>I created this toolkit to help every teacher scaffold learning more intentionally. With more than 17 years of experience teaching English to students in international contexts, I want to make thoughtful language-support decisions more accessible in everyday planning.</p>
-          <p>I hold a BA in Italian, an MS in TEFL, and a CELTA, alongside further training and certifications in UDL, IB, and PYP.</p>
-          <p>The toolkit helps teachers notice language barriers, choose a focused scaffold, and understand why it may help—while preserving academic challenge. AI can help prepare materials; teachers bring the knowledge of their learners needed to review, adapt, and teach them.</p>
-          <p className="creator-stage">This is an early-stage toolkit awaiting classroom trials and colleague review.</p>
-        </div>
-      </div>
-    </section>
   </>
 }
 
@@ -166,6 +155,34 @@ function QuickStart({ onNavigate }: { onNavigate: (path: string) => void }) {
 
 function NotFound({ onNavigate }: { onNavigate: (path: string) => void }) { return <section className="not-found"><div className="container"><span className="not-found-icon"><Icon name="BookOpen" size={35} /></span><p className="eyebrow">Page not found</p><h1>Let’s get back to the lesson.</h1><p>The link may have moved. The home page has every strategy in one place.</p><a className="primary-button" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Go to home <Icon name="ArrowRight" size={18} /></a></div></section> }
 
-function Footer({ onNavigate }: { onNavigate: (path: string) => void }) { return <footer className="site-footer"><div className="container footer-inner"><a className="brand footer-brand" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}><span className="brand-mark"><Icon name="BookOpen" size={26} /></span><span><strong>Language Support Toolkit</strong><small>Every Lesson Is a Language Lesson</small></span></a><p>Small tweaks. More access.</p><a href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Workshop quick-start</a></div></footer> }
+function Footer({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const projects = [
+    { name: 'My Multilingual Family', detail: 'mymultilingualfamily.com', url: 'https://www.mymultilingualfamily.com/' },
+    { name: 'ReadLinguaFlow', detail: 'readlinguaflow.com', url: 'https://readlinguaflow.com/' },
+    { name: 'Federico Orozco', detail: 'federicoorozco.co', url: 'https://federicoorozco.co/' },
+    { name: 'Lingua Strategies', detail: 'lenguajelabs-design.github.io', url: 'https://lenguajelabs-design.github.io/Lingua-Strategies/' },
+  ]
+  return <footer className="site-footer">
+    <div className="container">
+      <div className="footer-main">
+        <div className="footer-intro">
+          <a className="brand footer-brand" href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}><span className="brand-mark"><Icon name="BookOpen" size={28} /></span><span><strong>Language Support Toolkit</strong><small>Every lesson is a language lesson.</small></span></a>
+          <p>Helping teachers choose purposeful language support while keeping academic challenge intact.</p>
+          <p className="footer-creator">Created by <a href="https://federicoorozco.co/">Federico Orozco, EAL Specialist</a>, drawing on more than 17 years of teaching English in international contexts.</p>
+        </div>
+        <nav className="footer-projects" aria-labelledby="footer-projects-title">
+          <h2 id="footer-projects-title">More from Lenguaje Labs</h2>
+          <div className="footer-project-grid">{projects.map((project) => <a className="footer-project" href={project.url} key={project.name}><span><strong>{project.name}</strong><small>{project.detail}</small></span><Icon name="ArrowRight" size={17} /></a>)}</div>
+        </nav>
+      </div>
+      <div className="footer-bottom">
+        <p>© {new Date().getFullYear()} Federico Orozco / Lenguaje Labs</p>
+        <nav aria-label="Toolkit footer navigation"><a href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Strategies</a><a href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Quick start</a></nav>
+        <p>Made for educators, with care.</p>
+      </div>
+      <p className="footer-stage">An early-stage toolkit awaiting classroom trials and colleague review. Review and adapt AI-generated materials before teaching.</p>
+    </div>
+  </footer>
+}
 
 export default App
