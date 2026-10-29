@@ -34,6 +34,25 @@ export function buildPrompt(template: string, values: Values) {
   return [contextualPrompt, domainContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
 }
 
+/** Adapt text without claiming that an AI-generated passage has a certified level. */
+export function buildAdaptedTextPrompt(values: Values) {
+  const intro = buildPrompt('You are an EAL instructional designer helping a teacher adapt a {{GRADE}} {{SUBJECT}} text for multilingual learners developing English around WIDA levels {{LEVEL}}.', values)
+  const objective = values.ADAPT_OBJECTIVE?.trim()
+  const observations = values.ADAPT_OBSERVATIONS?.trim()
+  const support = values.ADAPT_SUPPORT?.trim()
+  const context = [
+    objective ? `Teacher's learning objective: ${objective}` : 'No learning objective was provided. Infer a provisional objective from the text and label it as inferred.',
+    observations ? `Teacher's observations about learners: ${observations}` : 'No additional learner observations were provided. Make a useful first adaptation and suggest one or two observations that could help refine it.',
+    ['light', 'moderate', 'substantial'].includes(support) ? `Requested amount of language support: ${support}. Use this as a planning preference, not a proficiency score.` : '',
+  ].filter(Boolean).join('\n')
+  return [intro, context, `GOAL\nMake the text more accessible while preserving the grade-level learning objective, important content, and academic challenge. Use any reported proficiency together with teacher observations to guide support; do not claim the result is formally verified at a WIDA or other reading level.`,
+`1. IDENTIFY LANGUAGE DEMANDS\nBriefly identify up to three features that may make the text challenging: essential academic vocabulary; dense sentences or unclear references; language showing cause and effect, comparison, sequence or evidence; or assumed background knowledge. Explain how each may affect access to the objective without assuming every learner experiences the same barrier.`,
+`2. ADAPT THE TEXT\nPreserve the key ideas, examples, evidence, sequence, qualifications and relationships needed for the objective. Keep essential subject-specific terms and explain them accurately in context. Use clear, natural, age-respectful language. Divide dense sentences when useful, but keep ideas connected when their relationship matters. Make relationships explicit with words such as “because”, “as a result”, or “in contrast” when appropriate. Clarify ambiguous references. Organize longer text into meaningful paragraphs, adding helpful headings only when useful. Preserve the text's purpose and form where possible; do not turn a connected explanation into disconnected facts. Do not invent facts, change meaning or omit important content. Flag unclear or potentially inaccurate material rather than silently correcting it.`,
+`3. PROVIDE FOCUSED SUPPORTS\nA. Key vocabulary: Choose up to 4–6 words essential to the objective, or fewer if appropriate, with brief, accurate, student-friendly explanations in this lesson's context.\nB. Visual suggestion: Describe one useful visual, gesture, object or demonstration, what it shows and which part of the text it supports. If you cannot create the visual, label it “Visual suggestion”; do not claim an image is included.\nC. Comprehension checks: Write two brief questions: one checks an essential idea or relationship, and one asks students to explain, compare or use evidence in line with the objective. Offer an optional response support, such as a sentence starter or partner discussion, without giving away the answer.`,
+`4. TEACHER NOTES\nBriefly identify up to three language changes and why they may help; the academic ideas and terms preserved; and assumptions, omissions, uncertain content or places to check against the original. Suggest one adjustment if the text remains too demanding and one way to extend language learning when appropriate. Keep the adapted student text separate from the teacher notes and label each section clearly. Do not claim the text is perfectly matched to a learner or that comprehension has been validated. The teacher should review and adjust it using knowledge of the students.`,
+'Lesson text:\n[PASTE LESSON TEXT HERE]'].join('\n\n')
+}
+
 
 /** Builds a copy-ready request; this site does not generate images or files. */
 export function buildWordBankPrompt(template: string, values: Values) {
