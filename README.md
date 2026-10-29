@@ -1,5 +1,7 @@
 # Language Support Toolkit
 
+**Live toolkit:** [Language Support Toolkit](https://lenguajelabs-design.github.io/Language-Support-Toolkit./). Use this address in workshop materials and shared links.
+
 A lightweight companion website for **Every Lesson Is a Language Lesson**, a November 2026 professional-development workshop for teachers working with multilingual learners.
 
 The site is intentionally a teaching resource—not an AI chatbot. It helps teachers identify a language demand, select a fitting scaffold, create a draft with their school-approved AI tool, and review it before teaching.
@@ -9,7 +11,8 @@ The site is intentionally a teaching resource—not an AI chatbot. It helps teac
 - Responsive homepage with the NOTICE → SCAFFOLD → CREATE → REVIEW framework
 - Six dedicated strategy routes: Adapt a Text, Build a Word Bank, Translate a Visual, Support Speaking, Scaffold Writing, and Find Language Demands
 - Before-and-after classroom examples, including a Grade 4 landforms word bank
-- Copy-ready, customizable AI prompts with teacher-review reminders
+- Strategy pages open directly on customizable AI prompts, with examples, rationale, and teaching tips alongside
+- Copy before an optional full-prompt preview, with teacher-review reminders and a manual-copy fallback
 - A four Key Language Uses planning reference and independent-resource disclaimer
 - Keyboard-accessible navigation, semantic HTML, direct hash links, and phone-first layouts
 
@@ -38,7 +41,9 @@ Only grade, subject, language, proficiency, and resource preferences are saved f
 
 ## Links and static hosting
 
-The site uses hash-based routes (for example `/#/strategy/build-a-word-bank`). This keeps individual strategy links working on static hosts—including GitHub Pages—without server-side route rewrites.
+The site uses hash-based routes (for example `/#/strategy/build-a-word-bank`). This keeps individual strategy links working on static hosts—including GitHub Pages—without server-side route rewrites. Relative build asset paths let the same `dist` output work at a domain root or the GitHub Pages project path. Keep Vite's `base` set to `./` when publishing to either host.
+
+GitHub Pages is the primary address above. The existing Sites publication remains a working copy of the toolkit. Its `.openai/hosting.json` retains the existing Site identity. The service worker checks the network first for page navigation so returning visitors receive current releases, with an offline fallback when available.
 
 ## GitHub Pages
 
