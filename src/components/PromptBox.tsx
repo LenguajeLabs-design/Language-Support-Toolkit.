@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
-import { buildPrompt, buildWordBankPrompt, defaultValues, type Values } from '../lib/prompt'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
 const coreFields = ['GRADE', 'SUBJECT', 'HOME_LANGUAGE']
@@ -39,11 +39,12 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     return [...coreFields, ...templateFields.filter((field) => field !== 'LEVEL' && !coreFields.includes(field))]
   }, [strategy.prompt])
   const isWordBank = strategy.slug === 'build-a-word-bank'
-  const prompt = useMemo(() => isWordBank ? buildWordBankPrompt(strategy.prompt, values) : buildPrompt(strategy.prompt, values), [strategy.prompt, values, isWordBank])
+  const isAdaptText = strategy.slug === 'adapt-a-text'
+  const prompt = useMemo(() => isWordBank ? buildWordBankPrompt(strategy.prompt, values) : isAdaptText ? buildAdaptedTextPrompt(values) : buildPrompt(strategy.prompt, values), [strategy.prompt, values, isWordBank, isAdaptText])
   useEffect(() => {
     try {
-      const { LESSON_TITLE, LEARNING_OBJECTIVE, KEY_TERMS, ...savedChoices } = values
-      void LESSON_TITLE; void LEARNING_OBJECTIVE; void KEY_TERMS
+      const { LESSON_TITLE, LEARNING_OBJECTIVE, KEY_TERMS, ADAPT_OBJECTIVE, ADAPT_OBSERVATIONS, ...savedChoices } = values
+      void LESSON_TITLE; void LEARNING_OBJECTIVE; void KEY_TERMS; void ADAPT_OBJECTIVE; void ADAPT_OBSERVATIONS
       window.sessionStorage.setItem(promptContextStorageKey, JSON.stringify(savedChoices))
     } catch {
       // The prompt remains usable when browser storage is unavailable.
@@ -79,6 +80,16 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <legend className="sr-only">Customize this prompt</legend>
       {fields.map((field) => <label key={field}><span>{labels[field] || field.replaceAll('_', ' ').toLowerCase()}{field === 'HOME_LANGUAGE' && <em>Optional</em>}</span><input value={values[field] || ''} placeholder={field === 'HOME_LANGUAGE' ? 'e.g., Arabic, Spanish, Mixtec' : undefined} onChange={(event) => update(field, event.target.value)} /></label>)}
     </fieldset>
+    {isAdaptText && <section className="word-builder" aria-labelledby="adapt-builder-title">
+      <h3 className="builder-section-title" id="adapt-builder-title">Your text</h3>
+      <p>Choose the support that fits your learners. Add the lesson text after pasting the prompt into your AI tool.</p>
+      <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
+        <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.ADAPT_OBJECTIVE || ''} onChange={event => update('ADAPT_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
+        <label className="word-builder-label">What you notice about your learners <span>Optional</span><textarea rows={3} value={values.ADAPT_OBSERVATIONS || ''} onChange={event => update('ADAPT_OBSERVATIONS', event.target.value)} placeholder="e.g., They can explain ideas orally but need help following long sentences." /></label>
+        <label className="word-builder-label">Amount of language support <span>Optional</span><select value={values.ADAPT_SUPPORT || ''} onChange={event => update('ADAPT_SUPPORT', event.target.value)}><option value="">Let the AI suggest support</option><option value="light">Light support</option><option value="moderate">Moderate support</option><option value="substantial">Substantial support</option></select></label>
+        <p className="word-builder-note">The objective and observations are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
+      </details>
+    </section>}
     {isWordBank && <section className="word-builder" aria-labelledby="word-builder-title">
       <h3 className="builder-section-title" id="word-builder-title">Your word bank</h3>
       <p>Choose what you need. The AI tool you use will create the resource.</p>
