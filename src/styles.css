@@ -731,6 +731,16 @@ p { line-height: 1.55; }
 }
 
 
+/* Evidence of preparation and shared criteria frame the writing example. */
+.writing-preparation { margin: 0 0 26px; padding: 20px 24px; border-left: 4px solid #b5872d; border-radius: 8px; background: #fff8e8; color: #554522; }
+.writing-preparation p { margin: 8px 0 0; line-height: 1.65; }
+.writing-criteria { margin-top: 22px; padding: 18px 20px; border-radius: 9px; background: #f2f6fb; color: #29445c; }
+.writing-criteria ul { margin: 10px 0 0; padding-left: 20px; line-height: 1.7; }
+.writing-source { margin-top: 20px; color: var(--muted); font-size: .85rem; line-height: 1.6; }
+.writing-source a { color: #17659a; text-underline-offset: 3px; }
+.writing-example .fade-note { align-items: flex-start; line-height: 1.65; }
+.writing-example .fade-note svg { margin-top: 4px; }
+
 /* Keep the path from choosing a support to copying it short on every screen. */
 [hidden] { display: none !important; }
 #main-content:focus { outline: none; }
