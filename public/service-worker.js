@@ -1,15 +1,18 @@
-const CACHE_NAME = 'language-support-toolkit-v1'
+const CACHE_NAME = 'language-support-toolkit-v2'
 
 self.addEventListener('install', () => {
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim())
+  event.waitUntil(Promise.all([
+    caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('language-support-toolkit-') && key !== CACHE_NAME).map(key => caches.delete(key)))),
+    self.clients.claim(),
+  ]))
 })
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return
+  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
@@ -21,9 +24,10 @@ self.addEventListener('fetch', (event) => {
           }
           return response
         })
-        .catch(() => cached)
+        .catch(() => cached || Response.error())
 
-      return cached || network
+      // Refresh the document on each visit so returning teachers receive fixes.
+      return event.request.mode === 'navigate' ? network : cached || network
     }),
   )
 })

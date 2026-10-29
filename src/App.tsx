@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Header } from './components/Header'
 import { Icon, type IconName } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
@@ -20,13 +20,17 @@ function routeFromHash() {
 
 function App() {
   const [path, setPath] = useState(routeFromHash)
+  const main = useRef<HTMLElement>(null)
   useEffect(() => {
     const update = () => setPath(routeFromHash())
     window.addEventListener('hashchange', update)
     return () => window.removeEventListener('hashchange', update)
   }, [])
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' })
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    main.current?.focus({ preventScroll: true })
+    const heading = main.current?.querySelector('h1')?.textContent
+    document.title = heading ? `${heading} | Language Support Toolkit` : 'Language Support Toolkit'
   }, [path])
   const navigate = (next: string) => { window.location.hash = next }
   let page: React.ReactNode
@@ -34,14 +38,12 @@ function App() {
   else if (path === '/strategies') page = <Strategies onNavigate={navigate} />
   else if (path === '/key-language-uses') page = <KeyLanguageUses onNavigate={navigate} />
   else if (path === '/quick-start') page = <QuickStart onNavigate={navigate} />
-  else if (path.startsWith('/strategy/')) page = <StrategyPage slug={path.replace('/strategy/', '')} onNavigate={navigate} />
+  else if (path.startsWith('/strategy/')) page = <StrategyPage key={path} slug={path.replace('/strategy/', '')} onNavigate={navigate} />
   else page = <NotFound onNavigate={navigate} />
-  return <><Header path={path} onNavigate={navigate} /><main>{page}</main><Footer onNavigate={navigate} /></>
+  return <><a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); main.current?.focus() }}>Skip to content</a><Header path={path} onNavigate={navigate} /><main id="main-content" ref={main} tabIndex={-1}>{page}</main><Footer onNavigate={navigate} /></>
 }
 
 function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const [query, setQuery] = useState('')
-  const visibleStrategies = useMemo(() => strategies.filter((strategy) => `${strategy.title} ${strategy.summary}`.toLowerCase().includes(query.toLowerCase())), [query])
   const scrollToLessonMoments = () => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     document.getElementById('lesson-moments')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
@@ -62,9 +64,9 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
         <div className="hero-copy">
           <p className="eyebrow light"><span></span>Language support for real lessons</p>
           <h1>Make the next lesson <em>easier to enter.</em></h1>
-          <p className="hero-lede">Bring a slide, text, discussion, or writing task. Notice the language students need, then choose one purposeful support without lowering the thinking.</p>
-          <div className="hero-actions"><a className="primary-button hero-primary-action" href="#lesson-moments" onClick={(event) => { event.preventDefault(); scrollToLessonMoments() }}>Choose a lesson moment <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Explore six supports</a></div>
-          <div className="hero-steps" aria-label="How the toolkit works"><div><span>01</span><p><b>Bring</b> one real lesson.</p></div><div><span>02</span><p><b>Notice</b> one language barrier.</p></div><div><span>03</span><p><b>Leave with</b> a usable next move.</p></div></div>
+          <p className="hero-lede">Choose one support for your lesson, customize a prompt, then copy it into your school-approved AI tool. Keep the thinking challenging and make the language more accessible.</p>
+          <div className="hero-actions"><a className="primary-button hero-primary-action" href="#lesson-moments" onClick={(event) => { event.preventDefault(); scrollToLessonMoments() }}>Choose a support <Icon name="ArrowRight" size={18} /></a><a className="text-button light-button" href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>How to use the toolkit</a></div>
+          <div className="hero-steps" aria-label="How the toolkit works"><div><span>01</span><p><b>Choose</b> a support.</p></div><div><span>02</span><p><b>Customize</b> your prompt.</p></div><div><span>03</span><p><b>Copy</b> and review with AI.</p></div></div>
           <p className="hero-reassurance"><Icon name="Check" size={16} />Built for the planning moment right before teaching.</p>
         </div>
         <aside className="hero-art" aria-label="An example lesson field note showing how to find a language demand">
@@ -73,7 +75,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
             <div className="snapshot-focus"><img src={erosionCue} alt="A river carrying soil and rocks away from a bank" /><div><span>Students need to explain</span><strong>how erosion changes land.</strong></div></div>
             <div className="snapshot-task"><span>Classroom task</span><p>Explain how wind and water change land over time.</p></div>
             <div className="snapshot-signals"><span>cause</span><span>sequence</span><span>evidence</span></div>
-            <div className="snapshot-next"><div><span>One next move</span><strong>Build a visual word bank</strong></div><Icon name="ArrowRight" size={20} /></div>
+            <a className="snapshot-next" href="#/strategy/build-a-word-bank" onClick={event => { event.preventDefault(); onNavigate('/strategy/build-a-word-bank') }}><div><span>Try this support</span><strong>Build a visual word bank</strong></div><Icon name="ArrowRight" size={20} /></a>
           </div>
           <p className="hero-art-caption"><Icon name="Lightbulb" size={16} />One sharp observation becomes a usable scaffold.</p>
         </aside>
@@ -81,7 +83,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     </section>
     <section className="lesson-moment-section" id="lesson-moments">
       <div className="container">
-        <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose the lesson moment that is closest to yours. You can still adjust the strategy once you arrive.</p></div><span className="lesson-moment-note"><Icon name="Lightbulb" size={17} />Not sure? Start with the lesson you have.</span></div>
+        <div className="lesson-moment-heading"><div><p className="eyebrow">Start with what you have</p><h2>What are you working with today?</h2><p>Choose what is closest to your lesson. Your prompt opens ready to customize, with an example and teaching guidance alongside it.</p></div><a className="lesson-moment-note" href="#/strategy/find-language-demands" onClick={event => { event.preventDefault(); onNavigate('/strategy/find-language-demands') }}><Icon name="Lightbulb" size={17} />Not sure? Find the language demands.</a></div>
         <div className="lesson-moment-grid">
           {lessonMoments.map(([number, category, label, detail, slug]) => {
             const strategy = getStrategy(slug)!
@@ -100,13 +102,6 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
         </div>
       </div>
     </section>
-    <section className="strategy-section" id="strategies">
-      <div className="container">
-        <div className="section-heading split"><div><p className="eyebrow">Six ways in</p><h2>Choose the support your lesson needs.</h2></div><label className="search-field"><Icon name="Search" size={18} /><span className="sr-only">Filter strategies</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a strategy" /></label></div>
-        <div className="strategy-grid">{visibleStrategies.map((strategy) => <StrategyCard key={strategy.slug} strategy={strategy} onNavigate={onNavigate} />)}</div>
-        {visibleStrategies.length === 0 && <p className="empty-state">No strategy matches that search. Try “writing,” “word,” or “text.”</p>}
-      </div>
-    </section>
     <section className="workshop-band">
       <div className="container workshop-grid"><div><p className="eyebrow light">In the workshop</p><h2>Bring one lesson. Leave with one next move.</h2><p>This toolkit is made for the moment after the slide: when you have a real classroom resource in front of you and want to make it more accessible.</p></div><ol><li><span>1</span>Choose an existing lesson.</li><li><span>2</span>Identify one language barrier.</li><li><span>3</span>Select one strategy.</li><li><span>4</span>Copy, adapt, and review a prompt.</li></ol><a className="secondary-button" href="#/quick-start" onClick={(event) => { event.preventDefault(); onNavigate('/quick-start') }}>Use the quick-start guide <Icon name="ArrowRight" size={17} /></a></div>
     </section>
@@ -116,16 +111,32 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
 function Strategies({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [query, setQuery] = useState('')
   const shown = strategies.filter((strategy) => `${strategy.title} ${strategy.why} ${strategy.uses.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
-  return <section className="listing-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span>Strategies</div><div className="listing-heading"><div><p className="eyebrow">Strategy library</p><h1>Find the right support—not just a quick fix.</h1><p>Each page takes two to five minutes and connects a common classroom barrier to a practical scaffold.</p></div><label className="search-field"><Icon name="Search" size={18} /><span className="sr-only">Search strategies</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search strategies" /></label></div><div className="strategy-grid">{shown.map((strategy) => <StrategyCard key={strategy.slug} strategy={strategy} onNavigate={onNavigate} />)}</div></div></section>
+  return <section className="listing-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span>Strategies</div><div className="listing-heading"><div><p className="eyebrow">Strategy library</p><h1>Choose a support for your lesson.</h1><p>Choose a support, customize your prompt, and copy it into your AI tool. Examples and teaching guidance are there whenever you need them.</p></div><label className="search-field"><Icon name="Search" size={18} /><span className="sr-only">Search strategies</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search strategies" /></label></div><div className="strategy-grid">{shown.map((strategy) => <StrategyCard key={strategy.slug} strategy={strategy} onNavigate={onNavigate} />)}</div>{shown.length === 0 && <div className="empty-state" role="status"><p>No supports match “{query}”. Try “text,” “speaking,” or “writing.”</p><button className="secondary-button" onClick={() => setQuery('')}>Show all six supports</button></div>}</div></section>
 }
 
 function StrategyPage({ slug, onNavigate }: { slug: string; onNavigate: (path: string) => void }) {
   const strategy = getStrategy(slug)
-  const [tab, setTab] = useState<'overview' | 'example' | 'try' | 'tips'>('overview')
-  useEffect(() => setTab('overview'), [slug])
+  const [tab, setTab] = useState<'try' | 'example' | 'overview' | 'tips'>('try')
+  const tabButtons = useRef<(HTMLButtonElement | null)[]>([])
   if (!strategy) return <NotFound onNavigate={onNavigate} />
-  const tabs = [['overview', 'Overview', 'Overview'], ['example', 'See an example', 'Example'], ['try', 'Customize prompt', 'Customize'], ['tips', 'Teaching tips', 'Tips']] as const
-  return <section className="strategy-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span><a href="#/strategies" onClick={(event) => { event.preventDefault(); onNavigate('/strategies') }}>Strategies</a><span>›</span>{strategy.title}</div><header className="strategy-header"><div className={`strategy-page-icon accent-${strategy.accent}`}><Icon name={strategy.icon as never} size={34} /></div><div><p className={`eyebrow accent-text-${strategy.accent}`}>Strategy</p><h1>{strategy.title}</h1><p>{strategy.summary}</p></div></header><div className="tabs" role="tablist" aria-label={`${strategy.title} sections`}>{tabs.map(([id, label, mobileLabel]) => <button key={id} className={tab === id ? 'active' : ''} role="tab" aria-label={label} aria-selected={tab === id} onClick={() => setTab(id)}><span className="desktop-tab-label" aria-hidden="true">{label}</span><span className="mobile-tab-label" aria-hidden="true">{mobileLabel}</span></button>)}</div>{tab === 'overview' && <Overview strategy={strategy} />}{tab === 'example' && <Example strategy={strategy} />}{tab === 'try' && <PromptBox strategy={strategy} />}{tab === 'tips' && <Tips strategy={strategy} onNavigate={onNavigate} />}</div></section>
+  const tabs = [['try', 'Customize prompt', 'Customize'], ['example', 'See an example', 'Example'], ['overview', 'Why it helps', 'Why it helps'], ['tips', 'Teaching tips', 'Tips']] as const
+  return <section className="strategy-page"><div className="container">
+    <div className="breadcrumb"><a href="#/" onClick={event => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span><a href="#/strategies" onClick={event => { event.preventDefault(); onNavigate('/strategies') }}>Supports</a><span>›</span>{strategy.title}</div>
+    <header className="strategy-header"><div className={`strategy-page-icon accent-${strategy.accent}`}><Icon name={strategy.icon as never} size={34} /></div><div><p className={`eyebrow accent-text-${strategy.accent}`}>Choose → customize → copy</p><h1>{strategy.title}</h1><p>{strategy.summary}</p></div></header>
+    <div className="tabs" role="tablist" aria-label={`${strategy.title} sections`}>
+      {tabs.map(([id, label, mobileLabel], index) => <button key={id} ref={element => { tabButtons.current[index] = element }} id={`tab-${id}`} className={tab === id ? 'active' : ''} role="tab" aria-label={label} aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)} onKeyDown={event => {
+        const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : -1
+        if (next < 0) return
+        event.preventDefault()
+        setTab(tabs[next][0])
+        tabButtons.current[next]?.focus()
+      }}><span className="desktop-tab-label" aria-hidden="true">{label}</span><span className="mobile-tab-label" aria-hidden="true">{mobileLabel}</span></button>)}
+    </div>
+    <div id="panel-try" role="tabpanel" aria-labelledby="tab-try" hidden={tab !== 'try'} tabIndex={0}><PromptBox key={slug} strategy={strategy} /></div>
+    <div id="panel-example" role="tabpanel" aria-labelledby="tab-example" hidden={tab !== 'example'} tabIndex={0}>{tab === 'example' && <Example strategy={strategy} />}</div>
+    <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" hidden={tab !== 'overview'} tabIndex={0}>{tab === 'overview' && <Overview strategy={strategy} />}</div>
+    <div id="panel-tips" role="tabpanel" aria-labelledby="tab-tips" hidden={tab !== 'tips'} tabIndex={0}>{tab === 'tips' && <Tips strategy={strategy} onNavigate={onNavigate} />}</div>
+  </div></section>
 }
 
 function Overview({ strategy }: { strategy: Strategy }) {
