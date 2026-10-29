@@ -1,0 +1,24 @@
+{
+  "name": "Language Support Toolkit",
+  "short_name": "Language Toolkit",
+  "description": "Practical strategies and AI prompts for making lessons more accessible for multilingual learners.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f9fc",
+  "theme_color": "#082a57",
+  "icons": [
+    {
+      "src": "pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

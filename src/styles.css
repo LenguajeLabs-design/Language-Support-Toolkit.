@@ -422,16 +422,20 @@ p { line-height: 1.55; }
 
 @media (max-width: 680px) {
   .home-hero, .hero-grid { min-height: auto; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* This must follow the wide-screen landing treatment above. Otherwise the
+     later desktop grid resets the earlier single-column phone layout. */
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .hero-copy { padding: 50px 0 25px; }
   .hero-copy h1 { margin: 13px 0 18px; font-size: clamp(3rem, 13vw, 4.1rem); }
   .hero-lede { margin-bottom: 25px; font-size: 1rem; }
   .hero-actions { gap: 10px; }
   .hero-actions .hero-primary-action { width: 100%; }
-  .hero-steps { margin-top: 28px; }
-  .hero-steps > div { min-height: 84px; padding: 12px 8px 11px 0; }
-  .hero-steps > div + div { padding-left: 9px; }
-  .hero-steps p { font-size: .65rem; }
-  .hero-art { padding-top: 0; padding-bottom: 46px; transform: none; }
+  .hero-steps { grid-template-columns: 1fr; margin-top: 28px; }
+  .hero-steps > div, .hero-steps > div + div { min-height: auto; padding: 12px 0; border-right: 0; }
+  .hero-steps > div + div { border-top: 1px solid rgba(205, 231, 242, .2); }
+  .hero-steps p { font-size: .78rem; }
+  .hero-art { display: block; min-width: 0; padding-top: 0; padding-bottom: 46px; transform: none; }
   .lesson-snapshot { padding: 15px; border-radius: 17px; transform: none; }
   .lesson-snapshot::after { top: 15px; right: 15px; }
   .snapshot-focus { grid-template-columns: 75px 1fr; gap: 13px; padding: 15px 0 13px; }
@@ -726,3 +730,38 @@ p { line-height: 1.55; }
  .visual-partner { margin: 0 20px 20px; }
 }
 
+
+/* Keep the path from choosing a support to copying it short on every screen. */
+[hidden] { display: none !important; }
+#main-content:focus { outline: none; }
+.skip-link { position: fixed; top: 12px; left: 12px; z-index: 100; padding: 12px 18px; border-radius: 8px; background: var(--navy); color: #fff; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+.hero-copy, .hero-art { min-width: 0; }
+#lesson-moments { scroll-margin-top: 90px; }
+a.snapshot-next { color: var(--ink); text-decoration: none; }
+a.snapshot-next:hover { background: #dcebf8; }
+.learner-options { margin-top: 26px; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.learner-options > summary, .prompt-preview > summary { padding: 8px 0; color: #315a79; font-size: .95rem; font-weight: 750; cursor: pointer; }
+.learner-options > summary > span { margin-left: 6px; color: var(--muted); font-size: .8rem; font-weight: 500; }
+.learner-options .proficiency-section { margin-top: 20px; }
+.prompt-copy-actions { flex-direction: row; flex-wrap: wrap; margin-top: 16px; }
+.prompt-copy-actions .copy-button { min-height: 50px; }
+.prompt-preview { margin-top: 22px; }
+.prompt-notes { margin-bottom: 0; }
+.prompt-panel .builder-section-title { margin-top: 24px; }
+.empty-state { padding: 24px 0; color: var(--muted); }
+@media (max-width: 680px) {
+  .hero-copy { padding-top: 34px; }
+  .hero-copy h1 { font-size: clamp(2.65rem, 11vw, 3.8rem); }
+  .hero-steps { margin-top: 24px; }
+  .hero-art { padding-bottom: 32px; }
+  .strategy-header { margin-bottom: 10px; padding-bottom: 14px; }
+  .tabs { margin-bottom: 20px; gap: 16px; }
+  .prompt-panel { padding: 20px; }
+  .prompt-copy-actions { flex-direction: column; align-items: stretch; gap: 14px; }
+  .prompt-copy-actions .review-note { order: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
