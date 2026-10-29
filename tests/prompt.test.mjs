@@ -1,7 +1,17 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { strategies } from '../src/data/strategies.ts'
-import { buildPrompt, buildWordBankPrompt, defaultValues } from '../src/lib/prompt.ts'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues } from '../src/lib/prompt.ts'
+
+test('text adaptation uses optional teacher context without inventing proficiency', () => {
+  const prompt = buildAdaptedTextPrompt({ ...defaultValues, GRADE: 'Grade 8', SUBJECT: 'history', LANGUAGE_DOMAIN: 'Reading', ADAPT_OBJECTIVE: 'Compare primary sources', ADAPT_OBSERVATIONS: 'Connects ideas orally', ADAPT_SUPPORT: 'moderate' })
+  for (const value of ['Grade 8', 'history', 'Compare primary sources', 'Connects ideas orally', 'moderate', 'Do not assign or assume a WIDA level', '[PASTE LESSON TEXT HERE]']) assert.ok(prompt.includes(value), value)
+  const blank = buildAdaptedTextPrompt({ ...defaultValues, LEVEL: '3', ADAPT_OBJECTIVE: ' ', ADAPT_OBSERVATIONS: ' ', ADAPT_SUPPORT: '' })
+  assert.ok(blank.includes('WIDA levels 3'))
+  assert.ok(blank.includes('provisional objective'))
+  assert.ok(!blank.includes('Compare primary sources'))
+  assert.doesNotMatch(blank, /{{|undefined|null/)
+})
 
 for (const strategy of strategies) {
   test(`${strategy.slug}: learner details reach the prompt without a home language`, () => {
