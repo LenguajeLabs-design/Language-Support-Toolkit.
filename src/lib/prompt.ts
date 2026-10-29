@@ -1,11 +1,29 @@
 export type Values = Record<string, string>
 
 export const defaultValues: Values = {
-  GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: 'explain a cause and effect relationship', WRITING_GOAL: 'write an evidence-based explanation', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_RESOURCE: 'both', WORD_BANK_COUNT: '4–6', WORD_BANK_TRANSLATIONS: 'yes', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
+  GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_RESOURCE: 'both', WORD_BANK_COUNT: '4–6', WORD_BANK_TRANSLATIONS: 'yes', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
+}
+
+/** Keep lesson-specific text out of browser storage, including older saved context. */
+export function getSessionPreferences(values: Record<string, unknown>): Values {
+  const preferences: Values = {}
+  for (const key of ['GRADE', 'SUBJECT', 'LEVEL', 'HOME_LANGUAGE', 'OTHER_FRAMEWORK', 'LANGUAGE_DOMAIN', 'WORD_BANK_RESOURCE', 'WORD_BANK_COUNT', 'WORD_BANK_TRANSLATIONS', 'WORD_BANK_FORMAT', 'ADAPT_SUPPORT']) {
+    if (typeof values[key] === 'string') preferences[key] = values[key]
+  }
+  if (!('HOME_LANGUAGE' in preferences) && typeof values.LANGUAGE === 'string') preferences.HOME_LANGUAGE = values.LANGUAGE
+  return preferences
 }
 
 function applyValues(text: string, values: Values) {
-  return text.replace(/{{(.*?)}}/g, (_, key) => values[key]?.trim() || defaultValues[key] || `[ADD ${key.replaceAll('_', ' ')} HERE]`)
+  return text.replace(/{{(.*?)}}/g, (_, key) => {
+    const value = values[key]?.trim()
+    if (value) return value
+    if (key === 'SPEAKING_GOAL' || key === 'WRITING_GOAL') {
+      const mode = key === 'SPEAKING_GOAL' ? 'speaking' : 'writing'
+      return `Not provided. Infer a provisional ${mode} goal from the supplied lesson material and label it as inferred. If the material is insufficient, ask for the goal before producing a scaffold.`
+    }
+    return defaultValues[key] || `[ADD ${key.replaceAll('_', ' ')} HERE]`
+  })
 }
 
 export function buildPrompt(template: string, values: Values) {
@@ -21,7 +39,8 @@ export function buildPrompt(template: string, values: Values) {
       : 'A reported English proficiency level is not available. Do not assign or assume a WIDA level. Ask for classroom observations where needed.'
   const contextualPrompt = knownLevel && template.includes('{{LEVEL}}') ? basePrompt : `${basePrompt}\n\n${proficiencyGuidance}`
   const domainContext = values.LANGUAGE_DOMAIN?.trim() ? `Language domain for this planning: ${values.LANGUAGE_DOMAIN.trim()}. Do not assume the same proficiency across all domains.` : ''
-  const observationContext = level === 'unknown' && values.PROFICIENCY_OBSERVATION?.trim()
+  const objectiveContext = values.LEARNING_OBJECTIVE?.trim() ? `Learning objective: ${values.LEARNING_OBJECTIVE.trim()}` : ''
+  const observationContext = values.PROFICIENCY_OBSERVATION?.trim()
     ? `Teacher observation for this task: ${values.PROFICIENCY_OBSERVATION.trim()}. Use this to suggest support; it is not a proficiency score.` : ''
   const includesEarlyProficiency = knownLevel && /(^|[^0-9])[12](?:[^0-9]|$)/.test(level)
   const languageContext = template.includes('{{HOME_LANGUAGE}}')
@@ -31,18 +50,24 @@ export function buildPrompt(template: string, values: Values) {
     ? 'For students at earlier proficiency levels, pair essential language with visuals, gesture, modeled oral language, short chunks, and rehearsal. Do not assume every student uses the same language or needs the same support.'
     : 'Do not assume every student uses the same language or needs the same support.'
 
-  return [contextualPrompt, domainContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
+  return [contextualPrompt, domainContext, objectiveContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
 }
 
 /** Adapt text without claiming that an AI-generated passage has a certified level. */
 export function buildAdaptedTextPrompt(values: Values) {
-  const intro = buildPrompt('You are an EAL instructional designer helping a teacher adapt a {{GRADE}} {{SUBJECT}} text for multilingual learners developing English around WIDA levels {{LEVEL}}.', values)
-  const objective = values.ADAPT_OBJECTIVE?.trim()
-  const observations = values.ADAPT_OBSERVATIONS?.trim()
+  // Accept the earlier adaptation field names while using shared context in the form.
+  const sharedValues = {
+    ...values,
+    LEARNING_OBJECTIVE: values.LEARNING_OBJECTIVE?.trim() || values.ADAPT_OBJECTIVE?.trim() || '',
+    PROFICIENCY_OBSERVATION: values.PROFICIENCY_OBSERVATION?.trim() || values.ADAPT_OBSERVATIONS?.trim() || '',
+  }
+  const intro = buildPrompt('You are an EAL instructional designer helping a teacher adapt a {{GRADE}} {{SUBJECT}} text for multilingual learners developing English around WIDA levels {{LEVEL}}.', sharedValues)
+  const objective = sharedValues.LEARNING_OBJECTIVE
+  const observations = sharedValues.PROFICIENCY_OBSERVATION
   const support = values.ADAPT_SUPPORT?.trim()
   const context = [
-    objective ? `Teacher's learning objective: ${objective}` : 'No learning objective was provided. Infer a provisional objective from the text and label it as inferred.',
-    observations ? `Teacher's observations about learners: ${observations}` : 'No additional learner observations were provided. Make a useful first adaptation and suggest one or two observations that could help refine it.',
+    objective ? '' : 'No learning objective was provided. Infer a provisional objective from the text and label it as inferred.',
+    observations ? '' : 'No additional learner observations were provided. Make a useful first adaptation and suggest one or two observations that could help refine it.',
     ['light', 'moderate', 'substantial'].includes(support) ? `Requested amount of language support: ${support}. Use this as a planning preference, not a proficiency score.` : '',
   ].filter(Boolean).join('\n')
   return [intro, context, `GOAL\nMake the text more accessible while preserving the grade-level learning objective, important content, and academic challenge. Use any reported proficiency together with teacher observations to guide support; do not claim the result is formally verified at a WIDA or other reading level.`,
@@ -67,7 +92,6 @@ export function buildWordBankPrompt(template: string, values: Values) {
   const intro = buildPrompt(template.replace('\n\nLesson content:\n[PASTE LESSON CONTENT HERE]', ''), promptValues)
   const context = [
     values.LESSON_TITLE?.trim() ? `Lesson title: ${values.LESSON_TITLE.trim()}` : '',
-    values.LEARNING_OBJECTIVE?.trim() ? `Learning objective: ${values.LEARNING_OBJECTIVE.trim()}` : '',
     values.KEY_TERMS?.trim() ? `Teacher-suggested terms to consider: ${values.KEY_TERMS.trim()}. Check that each is relevant; explain any exclusions or substitutions.` : '',
   ].filter(Boolean).join('\n')
   const reported = values.LEVEL?.trim() || ''

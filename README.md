@@ -30,7 +30,11 @@ npm run build
 
 ## Editing content
 
-Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
+Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Shared personalization and the specialized text-adaptation and word-bank builders live in [`src/lib/prompt.ts`](src/lib/prompt.ts). Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
+
+Every strategy accepts an optional learning objective and classroom observations, with or without a reported proficiency level. Blank speaking and writing goals request a clearly labeled inference from the lesson material rather than substituting a preset goal.
+
+Only grade, subject, language, proficiency, and resource preferences are saved for the browser-tab session. Lesson-specific text, including goals, objectives, and learner observations, is excluded when saving and restoring preferences.
 
 ## Links and static hosting
 
@@ -38,7 +42,7 @@ The site uses hash-based routes (for example `/#/strategy/build-a-word-bank`). T
 
 ## GitHub Pages
 
-The included workflow at `.github/workflows/deploy.yml` builds and deploys the `dist` folder whenever `main` changes.
+The workflow at `.github/workflows/deploy.yml` runs the prompt tests and production build for pull requests to `main`. Pushes to `main` deploy the tested `dist` folder to GitHub Pages; pull requests do not deploy.
 
 1. Create a GitHub repository and push this project to its `main` branch.
 2. In **Settings → Pages**, set the source to **GitHub Actions**.

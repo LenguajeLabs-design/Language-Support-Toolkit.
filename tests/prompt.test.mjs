@@ -1,7 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { strategies } from '../src/data/strategies.ts'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues } from '../src/lib/prompt.ts'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences } from '../src/lib/prompt.ts'
+
+// Exercise the same specialized builders that the customization form uses.
+function personalizedPrompt(strategy, values) {
+  if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
+  if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)
+  return buildPrompt(strategy.prompt, values)
+}
 
 test('text adaptation uses optional teacher context without inventing proficiency', () => {
   const prompt = buildAdaptedTextPrompt({ ...defaultValues, GRADE: 'Grade 8', SUBJECT: 'history', LANGUAGE_DOMAIN: 'Reading', ADAPT_OBJECTIVE: 'Compare primary sources', ADAPT_OBSERVATIONS: 'Connects ideas orally', ADAPT_SUPPORT: 'moderate' })
@@ -49,7 +56,9 @@ for (const strategy of strategies) {
     assert.ok(prompt.includes(values.PROFICIENCY_OBSERVATION))
     assert.ok(prompt.includes('Language domain for this planning: Writing'))
     assert.doesNotMatch(prompt, /WIDA levels|{{LEVEL}}/)
-    assert.ok(!buildPrompt(strategy.prompt, { ...values, LEVEL: '4' }).includes(values.PROFICIENCY_OBSERVATION))
+    const knownLevel = buildPrompt(strategy.prompt, { ...values, LEVEL: '4' })
+    assert.ok(knownLevel.includes(values.PROFICIENCY_OBSERVATION))
+    assert.ok(knownLevel.includes('WIDA levels 4'))
   })
   test(`${strategy.slug}: other frameworks are not converted to WIDA`, () => {
     const values = { ...defaultValues, LEVEL: 'other', OTHER_FRAMEWORK: 'CEFR B1 for writing' }
@@ -60,6 +69,75 @@ for (const strategy of strategies) {
     assert.ok(!buildPrompt(strategy.prompt, { ...values, LEVEL: '2–3' }).includes('CEFR B1'))
   })
 }
+
+for (const strategy of strategies) {
+  test(`${strategy.slug}: shared lesson context reaches the actual prompt at any proficiency`, () => {
+    const objective = 'Compare how two sources represent the same event'
+    const observation = 'Explains contrasts orally but needs help linking written evidence'
+    for (const level of ['', 'unknown', '3', '2–5', 'other']) {
+      const values = { ...defaultValues, LEVEL: level, OTHER_FRAMEWORK: 'CEFR B1 for writing', LEARNING_OBJECTIVE: `  ${objective}  `, PROFICIENCY_OBSERVATION: `  ${observation}  ` }
+      const prompt = personalizedPrompt(strategy, values)
+      assert.equal(prompt.split(objective).length - 1, 1, `objective at level ${level}`)
+      assert.equal(prompt.split(observation).length - 1, 1, `observation at level ${level}`)
+      assert.ok(prompt.includes('it is not a proficiency score'))
+      if (level === '3' || level === '2–5') assert.ok(prompt.includes(`WIDA levels ${level}`))
+      else assert.doesNotMatch(prompt, /WIDA levels/)
+      const cleared = personalizedPrompt(strategy, { ...values, LEARNING_OBJECTIVE: ' ', PROFICIENCY_OBSERVATION: ' ' })
+      assert.ok(!cleared.includes(objective))
+      assert.ok(!cleared.includes(observation))
+      assert.doesNotMatch(prompt, /{{|undefined|null/)
+    }
+  })
+}
+
+for (const [slug, field, mode, oldDefault] of [
+  ['support-speaking', 'SPEAKING_GOAL', 'speaking', 'explain a cause and effect relationship'],
+  ['scaffold-writing', 'WRITING_GOAL', 'writing', 'write an evidence-based explanation'],
+]) {
+  test(`${slug}: a cleared goal requests a provisional inference instead of an unrelated default`, () => {
+    const strategy = strategies.find(item => item.slug === slug)
+    for (const goal of ['', '   ', undefined]) {
+      const prompt = personalizedPrompt(strategy, { ...defaultValues, [field]: goal })
+      assert.ok(prompt.includes(`Infer a provisional ${mode} goal from the supplied lesson material`))
+      assert.ok(prompt.includes('label it as inferred'))
+      assert.ok(prompt.includes('ask for the goal before producing a scaffold'))
+      assert.ok(!prompt.includes(oldDefault))
+      assert.doesNotMatch(prompt, /{{|\[ADD (SPEAKING|WRITING) GOAL HERE\]|undefined|null/)
+    }
+    const customGoal = 'Compare contrasting accounts and justify a conclusion'
+    const custom = personalizedPrompt(strategy, { ...defaultValues, [field]: `  ${customGoal}  ` })
+    assert.ok(custom.includes(customGoal))
+    assert.ok(!custom.includes(`Infer a provisional ${mode} goal`))
+  })
+}
+
+test('adaptation accepts shared context in preference to legacy fields without duplicating it', () => {
+  const prompt = buildAdaptedTextPrompt({ ...defaultValues, LEVEL: '3', LEARNING_OBJECTIVE: 'Explain the role of evidence', PROFICIENCY_OBSERVATION: 'Links reasons orally', ADAPT_OBJECTIVE: 'Older objective', ADAPT_OBSERVATIONS: 'Older observation', ADAPT_SUPPORT: 'light' })
+  assert.ok(prompt.includes('Explain the role of evidence'))
+  assert.ok(prompt.includes('Links reasons orally'))
+  assert.ok(prompt.includes('Requested amount of language support: light'))
+  assert.ok(!prompt.includes('Older objective'))
+  assert.ok(!prompt.includes('Older observation'))
+  assert.ok(!prompt.includes('No learning objective was provided'))
+  assert.ok(!prompt.includes('No additional learner observations were provided'))
+})
+
+test('browser preferences retain choices while excluding current and legacy lesson-specific text', () => {
+  const preferences = getSessionPreferences({ ...defaultValues, GRADE: 'Grade 8', LEVEL: '3', HOME_LANGUAGE: 'Arabic', WORD_BANK_RESOURCE: 'practice', ADAPT_SUPPORT: 'moderate', LEARNING_OBJECTIVE: 'Private objective', PROFICIENCY_OBSERVATION: 'Private observation', LESSON_TITLE: 'Private lesson', KEY_TERMS: 'Private terms', SPEAKING_GOAL: 'Private speaking goal', WRITING_GOAL: 'Private writing goal', ADAPT_OBJECTIVE: 'Legacy objective', ADAPT_OBSERVATIONS: 'Legacy observation', UNRECOGNIZED_TEXT: 'Other private text' })
+  assert.equal(preferences.GRADE, 'Grade 8')
+  assert.equal(preferences.LEVEL, '3')
+  assert.equal(preferences.HOME_LANGUAGE, 'Arabic')
+  assert.equal(preferences.WORD_BANK_RESOURCE, 'practice')
+  assert.equal(preferences.ADAPT_SUPPORT, 'moderate')
+  for (const field of ['LEARNING_OBJECTIVE', 'PROFICIENCY_OBSERVATION', 'LESSON_TITLE', 'KEY_TERMS', 'SPEAKING_GOAL', 'WRITING_GOAL', 'ADAPT_OBJECTIVE', 'ADAPT_OBSERVATIONS', 'UNRECOGNIZED_TEXT']) assert.ok(!(field in preferences), field)
+  assert.deepEqual(getSessionPreferences(preferences), preferences)
+})
+
+test('restoring preferences migrates the legacy language and ignores invalid values', () => {
+  assert.deepEqual(getSessionPreferences({ LANGUAGE: 'Spanish', GRADE: 8, LEVEL: null, SUBJECT: { value: 'history' } }), { HOME_LANGUAGE: 'Spanish' })
+  assert.equal(getSessionPreferences({ HOME_LANGUAGE: '', LANGUAGE: 'Spanish' }).HOME_LANGUAGE, '')
+  assert.equal(getSessionPreferences({ HOME_LANGUAGE: 'Arabic', LANGUAGE: 'Spanish' }).HOME_LANGUAGE, 'Arabic')
+})
 
 
 const wordBankTemplate = strategies.find(item => item.slug === 'build-a-word-bank').prompt
