@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Header } from './components/Header'
 import { Icon, type IconName } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
+import { WritingExample } from './components/WritingExample'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
 import volcanoSupport from './assets/learning/volcano-support.png'
@@ -132,14 +133,20 @@ function Overview({ strategy }: { strategy: Strategy }) {
   return <div className="strategy-content overview-content"><div className="copy-column"><p className="eyebrow">Why it works</p><h2>Make the language visible so students can work with the idea.</h2><p className="body-large">{strategy.why}</p><div className="process-row">{strategy.steps.map((step, index) => <div className={strategy.slug === 'find-language-demands' ? 'process-step process-step-with-icon' : 'process-step'} key={step}>{strategy.slug === 'find-language-demands' ? <><span className="process-step-icon"><Icon name={demandIcons[index]} size={22} strokeWidth={1.8} /></span><div><small className="process-step-label">Step {index + 1}</small><p>{step}</p></div></> : <><span>{index + 1}</span><p>{step}</p></>}</div>)}</div></div><aside className={`when-card accent-${strategy.accent}`}><p className="eyebrow">When to use this</p><ul>{strategy.uses.map((use) => <li key={use}><Icon name="Check" size={17} />{use}</li>)}</ul></aside></div>
 }
 
-function WordBankTable() {
-  const rows = [
-    { word: 'weathering', meaning: 'rocks breaking into smaller pieces', sentence: 'Weathering breaks rocks over time.', image: weatheringCue, alt: 'A cracked boulder with rain and roots' },
-    { word: 'erosion', meaning: 'rock and soil moving by water, wind, or ice', sentence: 'Water causes erosion.', image: erosionCue, alt: 'A river carrying soil and rocks away from a bank' },
-    { word: 'sediment', meaning: 'small pieces of rock or soil', sentence: 'Rivers carry sediment.', image: sedimentCue, alt: 'Small rocks, sand, and soil settled in water' },
-    { word: 'surface', meaning: 'the top layer of something', sentence: 'The surface changes over time.', image: surfaceCue, alt: 'The grassy top layer of a block of land' },
+function VisualWordBankExample() {
+  const words = [
+    { word: 'Weathering', meaning: 'The breaking down of rocks into smaller pieces.', image: weatheringCue, alt: 'Illustration of rain and roots breaking a rock into pieces', look: 'Where can you see the rock breaking apart?', frame: 'Weathering breaks ___ into smaller pieces.' },
+    { word: 'Erosion', meaning: 'The movement of rock and soil by water, wind, or ice.', image: erosionCue, alt: 'Illustration of a river carrying soil away from its bank', look: 'Where is the water moving soil?', frame: 'Water causes erosion when ___.' },
+    { word: 'Sediment', meaning: 'Small pieces of rock or soil.', image: sedimentCue, alt: 'Illustration of small pieces of rock and soil under water', look: 'Which small pieces have settled beneath the water?', frame: 'The water carries sediment such as ___.' },
+    { word: 'Surface', meaning: 'The top or outside layer of something.', image: surfaceCue, alt: 'Illustration showing the grassy top layer of the ground', look: 'Which part is the surface of the ground?', frame: 'The surface changes when ___.' },
   ]
-  return <div className="wordbank-table"><div className="table-title">Word bank: Landforms and erosion</div><div className="wordbank-head"><b>Word</b><b>Meaning</b><b>Visual cue</b><b>Say it</b></div>{rows.map(({ word, meaning, sentence, image, alt }) => <div className="wordbank-row" key={word}><strong>{word}</strong><span>{meaning}</span><span className="wordbank-image"><img src={image} alt={alt} /></span><span>{sentence}</span></div>)}<p className="wordbank-note"><Icon name="Eye" size={13} />Use each image as a quick cue, then ask students to say the word and use it in a sentence.</p></div>
+  return <div className="strategy-content visual-example">
+    <div className="example-heading"><div><p className="eyebrow">Grade 4 science · landforms and erosion</p><h2>Make the words worth exploring.</h2><p>See how a few essential words become a visual reference and a reason to talk.</p></div><span className="example-tag">Before → after</span></div>
+    <div className="visual-before"><div><span className="visual-kicker">Before · original lesson text</span><p>Wind and water break down rocks over time. This process is called weathering. The broken pieces of rock, called sediment, are moved by water, wind or ice. This movement is called erosion.</p></div><p className="visual-demand"><Icon name="Lightbulb" size={19} /><span><strong>Language to notice</strong> Students need to distinguish how rocks break down from how the pieces move.</span></p></div>
+    <div className="visual-transition"><Icon name="ArrowRight" size={20} /><span>Make meaning visible</span></div>
+    <section className="visual-after" aria-labelledby="visual-example-title"><header><span className="visual-kicker">After · visual word bank</span><h3 id="visual-example-title">Landforms and erosion</h3><p>A classroom example using existing illustrations.</p></header><div className="visual-words">{words.map(({ word, meaning, image, alt, look, frame }) => <article className="visual-word" key={word}><div className="visual-word-art"><img src={image} alt={alt} /></div><div className="visual-word-copy"><h4>{word}</h4><p>{meaning}</p><div className="visual-look"><Icon name="Eye" size={17} /><span><strong>Look closely</strong> {look}</span></div><p className="visual-frame"><strong>Say it:</strong> “{frame}”</p></div></article>)}</div><div className="visual-partner"><Icon name="MessageCircle" size={22} /><p><strong>Try it with a partner</strong> Explain how weathering and erosion are different. Use at least two words from the bank.</p></div></section>
+    <section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>Why this helps</b></div><ul><li><Icon name="Check" size={16} />Keeps key terms visible alongside meaningful visual cues.</li><li><Icon name="Check" size={16} />Connects a focused observation to a speaking opportunity.</li><li><Icon name="Check" size={16} />Asks learners to explain relationships without giving them the answer.</li></ul></section>
+  </div>
 }
 
 function AdaptedTextExample() {
@@ -239,9 +246,10 @@ function SpeakingScaffold() {
 }
 
 function Example({ strategy }: { strategy: Strategy }) {
+  if (strategy.slug === 'scaffold-writing') return <WritingExample />
+  if (strategy.slug === 'build-a-word-bank') return <VisualWordBankExample />
   const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
-    : strategy.example.type === 'wordbank' ? <WordBankTable />
-      : strategy.example.type === 'visual' ? <VisualTranslationPlan />
+    : strategy.example.type === 'visual' ? <VisualTranslationPlan />
         : strategy.example.type === 'writing' ? <WritingScaffold />
           : strategy.example.type === 'demands' ? <LanguageDemandNotice />
             : strategy.example.type === 'speaking' ? <SpeakingScaffold />
