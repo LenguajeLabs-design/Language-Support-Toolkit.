@@ -13,6 +13,27 @@ test('text adaptation uses optional teacher context without inventing proficienc
   assert.doesNotMatch(blank, /{{|undefined|null/)
 })
 
+test('text adaptation starts with one clearly bounded paste area before any AI instructions', () => {
+  for (const learner of [
+    {},
+    { GRADE: 'Grade 2', LEVEL: '1–2', HOME_LANGUAGE: 'Arabic' },
+    { GRADE: 'Adult learners', LEVEL: 'other', OTHER_FRAMEWORK: 'CEFR B1 for reading', ADAPT_OBJECTIVE: 'Explain the water cycle' },
+  ]) {
+    const prompt = buildAdaptedTextPrompt({ ...defaultValues, ...learner })
+    const sourceEnd = prompt.indexOf('----- END OF LESSON TEXT -----')
+    assert.ok(prompt.startsWith('YOUR LESSON TEXT — PASTE BELOW'))
+    assert.equal((prompt.match(/\[PASTE LESSON TEXT HERE\]/g) || []).length, 1)
+    assert.match(prompt.slice(0, sourceEnd), /START OF LESSON TEXT -----\s+\[PASTE LESSON TEXT HERE\]/)
+    assert.ok(sourceEnd < prompt.indexOf('INSTRUCTIONS FOR THE AI'))
+    assert.ok(sourceEnd < prompt.indexOf('You are an EAL instructional designer'))
+    assert.match(prompt, /Language domain for this planning: Reading/)
+    assert.match(prompt, /title followed immediately by the complete adapted text/)
+    assert.match(prompt, /1\. The complete adapted reading\.\n2\. Reading supports\.\n3\. Teacher notes\./)
+    assert.match(prompt, /Use English proficiency to guide language support, not to infer maturity/)
+    assert.doesNotMatch(prompt, /{{|undefined|null/)
+  }
+})
+
 for (const strategy of strategies) {
   test(`${strategy.slug}: learner details reach the prompt without a home language`, () => {
     const values = { ...defaultValues, GRADE: 'Grade 9', SUBJECT: 'geography', LEVEL: '1–2', HOME_LANGUAGE: '' }
