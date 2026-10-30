@@ -31,6 +31,8 @@ Open the printed local URL. Run the prompt-personalization regression checks wit
 npm run build
 ```
 
+Use a local preview for site changes and user review. Publish only when explicitly requested.
+
 ## Editing content
 
 Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Shared personalization and the specialized text-adaptation, word-bank, writing, and speaking builders live in [`src/lib/prompt.ts`](src/lib/prompt.ts). `buildStrategyPrompt` selects the same builder for the form and regression checks. Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
@@ -42,6 +44,11 @@ Scaffold Writing also accepts optional preparation evidence, text type, purpose,
 Support Speaking accepts an optional discussion question, material list, and rehearsal duration. Its discussion card includes rotating speaker/listener responsibilities and time to refine an idea; the separate teacher guide includes participation routes, observable checks and support adjustments. The 1-, 3-, and 5-minute schedules include thinking, both exchanges and refinement; timings remain adjustable suggestions. See [the speaking review cases](docs/speaking-prompt-review.md).
 
 Only grade, subject, language, proficiency, and resource preferences are saved for the browser-tab session. Lesson-specific text, including goals, objectives, and learner observations, is excluded when saving and restoring preferences.
+
+Build a Visual Word Bank defaults to about 10 words in a four-column table: vocabulary, kid-friendly meaning, image, and home-language translation. A blank language produces an empty column for families to complete; named languages request separate translated versions. The prompt requests approximately five words per A4 page, embedded images, and PDF plus editable Word output when supported, without verification labels, review pages, or a practice companion.
+
+The word-bank prompt explicitly requests native image generation at the best supported quality, individual images that illustrate each definition, and inspection and replacement of weak visuals when those tools are available. It keeps the table text editable and uses suitable licensed images as a fallback when generation is unavailable. These instructions request capabilities in the teacher's chosen AI tool; the toolkit itself does not generate or inspect images.
+
 
 ## Links and static hosting
 
