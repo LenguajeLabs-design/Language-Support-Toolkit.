@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { strategies } from '../src/data/strategies.ts'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues } from '../src/lib/prompt.ts'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getWordBankCount } from '../src/lib/prompt.ts'
 
 test('text adaptation uses optional teacher context without inventing proficiency', () => {
   const prompt = buildAdaptedTextPrompt({ ...defaultValues, GRADE: 'Grade 8', SUBJECT: 'history', LANGUAGE_DOMAIN: 'Reading', ADAPT_OBJECTIVE: 'Compare primary sources', ADAPT_OBSERVATIONS: 'Connects ideas orally', ADAPT_SUPPORT: 'moderate' })
@@ -85,44 +85,72 @@ for (const strategy of strategies) {
 
 const wordBankTemplate = strategies.find(item => item.slug === 'build-a-word-bank').prompt
 
-test('word bank defaults create both resources without inventing proficiency or translations', () => {
+test('word bank defaults to about 10 words in a four-column handout without extra resources', () => {
   const prompt = buildWordBankPrompt(wordBankTemplate, defaultValues)
-  assert.match(prompt, /Select 4–6 essential words/)
-  assert.match(prompt, /STUDENT VISUAL WORD BANK/)
-  assert.match(prompt, /LANGUAGE PRACTICE COMPANION/)
+  assert.match(prompt, /Select about 10 essential vocabulary words/)
+  assert.match(prompt, /table with four columns/)
+  for (const value of ['1. Vocabulary:', '2. Kid-friendly meaning:', '3. Image:', '4. Home-language translation:', 'approximately five words per page', 'Keep each vocabulary row together', 'editable Word document', 'A4 print-ready PDF', 'images embedded in both']) assert.ok(prompt.includes(value), value)
   assert.match(prompt, /Do not assign or assume a WIDA level/)
-  assert.match(prompt, /Do not add translations/)
-  assert.match(prompt, /Image needed/)
-  assert.match(prompt, /Never claim that a file, image, source, or verification exists/)
+  assert.match(prompt, /blank fourth column labelled “Home language”/)
+  assert.match(prompt, /Do not add word-selection rationales/)
+  assert.match(prompt, /explain the limitation separately in chat/)
+  assert.match(prompt, /Do not claim that missing images or files exist/)
+  for (const value of ['explicitly invoke it', 'highest supported quality and detail settings', 'one individual image asset per vocabulary word', 'at least 1024 pixels', 'Regenerate or replace images', 'If image generation is unavailable', 'If neither generation nor suitable image retrieval is available', 'Keep the vocabulary, meanings and translations as editable document text']) assert.ok(prompt.includes(value), value)
+  assert.doesNotMatch(prompt, /Teacher verify|Image needed|LANGUAGE PRACTICE COMPANION|OUTPUT AND TEACHER REVIEW|DIFFERENTIATION|Look closely|short rationale|Explain briefly why/)
   assert.equal((prompt.match(/\[PASTE LESSON CONTENT HERE\]/g) || []).length, 1)
 })
 
 test('word bank uses specified lesson context, learner support, visual and output preferences', () => {
   const prompt = buildWordBankPrompt(wordBankTemplate, { ...defaultValues, GRADE: 'Grade 4', SUBJECT: 'history', LEVEL: '2–3', HOME_LANGUAGE: 'Spanish', LESSON_TITLE: 'Migration', LEARNING_OBJECTIVE: 'Explain why families migrate', KEY_TERMS: 'migration, journey', WORD_BANK_COUNT: '5', WORD_BANK_RESOURCE: 'visual', WORD_BANK_FORMAT: 'print' })
-  for (const value of ['Grade 4', 'history', 'WIDA levels 2–3', 'Migration', 'Explain why families migrate', 'migration, journey', 'Select 5 essential words', 'Spanish', 'Teacher verify', 'A4 print-ready PDF', 'level 3']) assert.ok(prompt.includes(value), value)
+  for (const value of ['Grade 4', 'history', 'WIDA levels 2–3', 'Migration', 'Explain why families migrate', 'migration, journey', 'Select 5 essential vocabulary words', 'Translate each vocabulary term into Spanish', 'A4 print-ready PDF']) assert.ok(prompt.includes(value), value)
   assert.ok(!prompt.includes('LANGUAGE PRACTICE COMPANION'))
-  assert.ok(!prompt.includes('editable document'))
+  assert.ok(!prompt.includes('editable Word document'))
+  assert.doesNotMatch(prompt, /Teacher verify|blank fourth column/)
 })
 
-test('word bank excludes translations and image work when teacher chooses practice only', () => {
+test('legacy practice and translation preferences cannot restore the old resource', () => {
   const prompt = buildWordBankPrompt(wordBankTemplate, { ...defaultValues, LEVEL: 'unknown', PROFICIENCY_OBSERVATION: 'Uses phrases to share ideas', HOME_LANGUAGE: 'Korean', WORD_BANK_RESOURCE: 'practice', WORD_BANK_TRANSLATIONS: 'no', WORD_BANK_FORMAT: 'content' })
-  assert.ok(prompt.includes('LANGUAGE PRACTICE COMPANION'))
+  assert.ok(!prompt.includes('LANGUAGE PRACTICE COMPANION'))
   assert.ok(prompt.includes('Uses phrases to share ideas'))
   assert.ok(prompt.includes('do not create or claim to create files'))
-  assert.ok(!prompt.includes('STUDENT VISUAL WORD BANK'))
-  assert.ok(!prompt.includes('Korean'))
+  assert.ok(prompt.includes('table with four columns'))
+  assert.ok(prompt.includes('Translate each vocabulary term into Korean'))
   assert.doesNotMatch(prompt, /WIDA levels/)
 })
 
 test('word bank supports multiple reported levels without filling blank lesson details', () => {
   const prompt = buildWordBankPrompt(wordBankTemplate, { ...defaultValues, LEVEL: '2–5', WORD_BANK_TRANSLATIONS: 'no', HOME_LANGUAGE: 'Arabic', WORD_BANK_FORMAT: 'editable' })
-  assert.ok(prompt.includes('earlier reported levels'))
-  assert.ok(prompt.includes('around level 3'))
-  assert.ok(prompt.includes('around levels 4–5'))
-  assert.ok(prompt.includes('Do not add translations'))
-  assert.ok(prompt.includes('editable document or slide-compatible'))
-  assert.ok(!prompt.includes('Arabic'))
+  assert.ok(prompt.includes('WIDA levels 2–5'))
+  assert.ok(prompt.includes('editable Word document'))
+  assert.ok(!prompt.includes('A4 print-ready PDF'))
+  assert.ok(prompt.includes('Translate each vocabulary term into Arabic'))
   assert.ok(!prompt.includes('Lesson title:'))
   assert.ok(!prompt.includes('Learning objective:'))
   assert.ok(!prompt.includes('Teacher-suggested terms to consider:'))
+})
+
+test('word bank language changes replace translations and clearing restores a blank column', () => {
+  const values = { ...defaultValues, HOME_LANGUAGE: 'Arabic, Mandarin' }
+  const translated = buildWordBankPrompt(wordBankTemplate, values)
+  assert.ok(translated.includes('Translate each vocabulary term into Arabic, Mandarin'))
+  assert.ok(translated.includes('separate language-specific version for each'))
+  assert.ok(translated.includes('Use the correct script'))
+  const changed = buildWordBankPrompt(wordBankTemplate, { ...values, HOME_LANGUAGE: 'Spanish' })
+  assert.ok(changed.includes('Translate each vocabulary term into Spanish'))
+  assert.doesNotMatch(changed, /Arabic|Mandarin/)
+  const cleared = buildWordBankPrompt(wordBankTemplate, { ...values, HOME_LANGUAGE: ' ' })
+  assert.ok(cleared.includes('blank fourth column'))
+  assert.doesNotMatch(cleared, /Arabic|Mandarin|Home language\(s\) students use:/)
+})
+
+test('word bank respects supported counts and replaces stale or invalid saved counts', () => {
+  for (const count of ['5', '8', '12']) assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: count }).includes(`Select ${count} essential vocabulary words`))
+  for (const count of ['4–6', 'invalid', '', '1000']) {
+    assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: count }).includes('Select about 10 essential vocabulary words'))
+    const restored = { ...defaultValues, WORD_BANK_COUNT: getWordBankCount(count) }
+    assert.equal(restored.WORD_BANK_COUNT, '10')
+    assert.ok(!('WORD_BANK_RESOURCE' in restored))
+    assert.ok(!('WORD_BANK_TRANSLATIONS' in restored))
+  }
+  assert.equal(getWordBankCount('8'), '8')
 })
