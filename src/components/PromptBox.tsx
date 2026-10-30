@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, type Values } from '../lib/prompt'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, wordBankCountOptions, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
 const coreFields = ['GRADE', 'SUBJECT', 'HOME_LANGUAGE']
@@ -76,6 +76,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <legend className="sr-only">Customize this prompt</legend>
       {fields.map((field) => <label key={field}><span>{labels[field] || field.replaceAll('_', ' ').toLowerCase()}{['HOME_LANGUAGE', 'SPEAKING_GOAL', 'WRITING_GOAL'].includes(field) && <em>Optional</em>}</span><input value={values[field] || ''} placeholder={fieldPlaceholders[field]} onChange={(event) => update(field, event.target.value)} /></label>)}
     </fieldset>
+    {isWordBank && <p className="field-help">Enter a home language for translations, or leave it blank for a column families can complete.</p>}
     {(strategy.slug === 'support-speaking' || strategy.slug === 'scaffold-writing') && <p className="field-help">Leave the goal blank to request an inferred goal from your lesson material. The AI should label its suggestion and ask if more context is needed.</p>}
     <details className="word-builder-advanced"><summary>More lesson context <span>Optional</span></summary>
       <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
@@ -90,19 +91,14 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     </section>}
     {isWordBank && <section className="word-builder" aria-labelledby="word-builder-title">
       <h3 className="builder-section-title" id="word-builder-title">Your word bank</h3>
-      <p>Choose what you need. The AI tool you use will create the resource.</p>
+      <p>About 10 words with kid-friendly meanings, clear images, and a home-language column. The AI tool you use will create the resource.</p>
+      <p className="word-builder-note">The prompt asks your AI tool to use its best available image generator for polished educational visuals.</p>
       <label className="word-builder-label">Lesson title <span>Optional</span><input value={values.LESSON_TITLE || ''} onChange={event => update('LESSON_TITLE', event.target.value)} placeholder="e.g., Weathering and erosion" /></label>
-      <fieldset className="resource-choices"><legend>What would you like to create?</legend>{[
-        ['both', 'Visual word bank + practice companion', 'Meanings, visuals, and activities for using the words.'],
-        ['visual', 'Visual word bank only', 'A student reference with meanings and visual support.'],
-        ['practice', 'Practice companion only', 'Examples, speaking frames, and a partner activity.'],
-      ].map(([value, label, detail]) => <label key={value} className={values.WORD_BANK_RESOURCE === value ? 'resource-option selected' : 'resource-option'}><input type="radio" name="word-bank-resource" value={value} checked={values.WORD_BANK_RESOURCE === value} onChange={event => update('WORD_BANK_RESOURCE', event.target.value)} /><span><strong>{label}</strong><small>{detail}</small></span></label>)}</fieldset>
+      <label className="word-builder-label">Number of words<select value={values.WORD_BANK_COUNT || '10'} onChange={event => update('WORD_BANK_COUNT', event.target.value)}>{wordBankCountOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
         <label className="word-builder-label">Words to consider <span>Optional</span><input value={values.KEY_TERMS || ''} onChange={event => update('KEY_TERMS', event.target.value)} placeholder="e.g., weathering, erosion" /></label>
-        <label className="word-builder-label">Number of words<select value={values.WORD_BANK_COUNT || '4–6'} onChange={event => update('WORD_BANK_COUNT', event.target.value)}><option value="4–6">4–6 (recommended)</option><option value="4">4 words</option><option value="5">5 words</option><option value="6">6 words</option></select></label>
-        <label className="word-builder-label">Preferred output<select value={values.WORD_BANK_FORMAT || 'both'} onChange={event => update('WORD_BANK_FORMAT', event.target.value)}><option value="both">Printable PDF + editable version, if supported</option><option value="print">Printable PDF, if supported</option><option value="editable">Editable document or slides, if supported</option><option value="content">Structured content only</option></select></label>
-        <label className="word-translation"><input type="checkbox" checked={values.WORD_BANK_TRANSLATIONS !== 'no'} onChange={event => update('WORD_BANK_TRANSLATIONS', event.target.checked ? 'yes' : 'no')} /> Include teacher-verified translations in the visual word bank when home languages are provided.</label>
-        <p className="word-builder-note">Lesson title and suggested words are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
+        <label className="word-builder-label">Preferred output<select value={values.WORD_BANK_FORMAT || 'both'} onChange={event => update('WORD_BANK_FORMAT', event.target.value)}><option value="both">Printable PDF + editable Word document, if supported</option><option value="print">Printable PDF, if supported</option><option value="editable">Editable Word document, if supported</option><option value="content">Table in the response only</option></select></label>
+        <p className="word-builder-note">Lesson title, objective, and suggested words are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
       </details>
     </section>}
     <details className="learner-options">
@@ -110,8 +106,8 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <ProficiencyGuide values={values} defaultDomain={defaultDomain} update={update} />
     </details>
     <h3 className="builder-section-title">Copy your prompt</h3>
-    <p className="placeholder-note" id="placeholder-help">After pasting into your AI tool, replace <code>{placeholder}</code>{isAdaptText && ' at the top of the prompt'} with your {material}. Review every output before teaching.</p>
-    <div className="prompt-footer prompt-copy-actions"><span className="review-note"><Icon name="Lightbulb" size={17} /> Teacher review required</span><button className={copyState === 'success' ? 'copy-button copied' : 'copy-button'} onClick={copy} disabled={copyState === 'copying'}><Icon name={copyState === 'success' ? 'Check' : 'Clipboard'} size={17} />{copyState === 'success' ? 'Prompt copied' : copyState === 'copying' ? 'Copying…' : 'Copy customized prompt'}</button></div>
+    <p className="placeholder-note" id="placeholder-help">After pasting into your AI tool, replace <code>{placeholder}</code>{isAdaptText && ' at the top of the prompt'} with your {material}.{!isWordBank && ' Review every output before teaching.'}</p>
+    <div className="prompt-footer prompt-copy-actions"><span className="review-note"><Icon name={isWordBank ? 'Image' : 'Lightbulb'} size={17} />{isWordBank ? 'Four-column visual word bank' : 'Teacher review required'}</span><button className={copyState === 'success' ? 'copy-button copied' : 'copy-button'} onClick={copy} disabled={copyState === 'copying'}><Icon name={copyState === 'success' ? 'Check' : 'Clipboard'} size={17} />{copyState === 'success' ? 'Prompt copied' : copyState === 'copying' ? 'Copying…' : 'Copy customized prompt'}</button></div>
     <div role="status" aria-live="polite" aria-atomic="true">
       {copyState === 'success' && <div className="copy-success"><Icon name="Check" size={20} /><div><strong>Prompt copied.</strong><span>Open your AI tool, paste the prompt, and replace the bracketed placeholder{isAdaptText && ' at the top'} with your {material}.</span></div></div>}
       {copyState === 'error' && <p className="copy-error">Automatic copying was unavailable. Select the prompt below and copy it manually, then paste it into your school-approved AI tool and replace {placeholder} with your {material}.</p>}

@@ -1,14 +1,25 @@
 export type Values = Record<string, string>
 
 export const defaultValues: Values = {
-  GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_RESOURCE: 'both', WORD_BANK_COUNT: '4–6', WORD_BANK_TRANSLATIONS: 'yes', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
+  GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_COUNT: '10', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
 }
 
-/** Keep lesson-specific text out of browser storage, including older saved context. */
+export const wordBankCountOptions = [
+  { value: '10', label: 'About 10 words (recommended)' },
+  { value: '5', label: '5 words' },
+  { value: '8', label: '8 words' },
+  { value: '12', label: '12 words' },
+] as const
+
+export function getWordBankCount(value?: string) {
+  return wordBankCountOptions.find(option => option.value === value)?.value || '10'
+}
+
+/** Keep lesson-specific text and retired word-bank choices out of browser storage. */
 export function getSessionPreferences(values: Record<string, unknown>): Values {
   const preferences: Values = {}
-  for (const key of ['GRADE', 'SUBJECT', 'LEVEL', 'HOME_LANGUAGE', 'OTHER_FRAMEWORK', 'LANGUAGE_DOMAIN', 'WORD_BANK_RESOURCE', 'WORD_BANK_COUNT', 'WORD_BANK_TRANSLATIONS', 'WORD_BANK_FORMAT', 'ADAPT_SUPPORT']) {
-    if (typeof values[key] === 'string') preferences[key] = values[key]
+  for (const key of ['GRADE', 'SUBJECT', 'LEVEL', 'HOME_LANGUAGE', 'OTHER_FRAMEWORK', 'LANGUAGE_DOMAIN', 'WORD_BANK_COUNT', 'WORD_BANK_FORMAT', 'ADAPT_SUPPORT']) {
+    if (typeof values[key] === 'string') preferences[key] = key === 'WORD_BANK_COUNT' ? getWordBankCount(values[key]) : values[key]
   }
   if (!('HOME_LANGUAGE' in preferences) && typeof values.LANGUAGE === 'string') preferences.HOME_LANGUAGE = values.LANGUAGE
   return preferences
@@ -160,40 +171,27 @@ Before responding, check that the reading flows naturally, preserves the source�
 
 /** Builds a copy-ready request; this site does not generate images or files. */
 export function buildWordBankPrompt(template: string, values: Values) {
-  const resource = ['both', 'visual', 'practice'].includes(values.WORD_BANK_RESOURCE) ? values.WORD_BANK_RESOURCE : 'both'
-  const visual = resource !== 'practice'
-  const practice = resource !== 'visual'
-  const count = ['4–6', '4', '5', '6'].includes(values.WORD_BANK_COUNT) ? values.WORD_BANK_COUNT : '4–6'
+  const count = getWordBankCount(values.WORD_BANK_COUNT)
   const format = ['both', 'print', 'editable', 'content'].includes(values.WORD_BANK_FORMAT) ? values.WORD_BANK_FORMAT : 'both'
   const languages = values.HOME_LANGUAGE?.trim() || ''
-  const includeTranslations = visual && values.WORD_BANK_TRANSLATIONS !== 'no' && Boolean(languages)
-  const promptValues = includeTranslations ? values : { ...values, HOME_LANGUAGE: '' }
-  const intro = buildPrompt(template.replace('\n\nLesson content:\n[PASTE LESSON CONTENT HERE]', ''), promptValues)
+  const intro = buildPrompt(template.replace('\n\nLesson content:\n[PASTE LESSON CONTENT HERE]', ''), values)
   const context = [
     values.LESSON_TITLE?.trim() ? `Lesson title: ${values.LESSON_TITLE.trim()}` : '',
-    values.KEY_TERMS?.trim() ? `Teacher-suggested terms to consider: ${values.KEY_TERMS.trim()}. Check that each is relevant; explain any exclusions or substitutions.` : '',
+    values.KEY_TERMS?.trim() ? `Teacher-suggested terms to consider: ${values.KEY_TERMS.trim()}. Include those that are relevant to the lesson.` : '',
   ].filter(Boolean).join('\n')
-  const reported = values.LEVEL?.trim() || ''
-  const parts = /^[1-6](?:[–-][1-6])?$/.test(reported) ? reported.split(/[–-]/).map(Number) : []
-  const low = parts.length ? Math.min(...parts) : 0
-  const high = parts.length ? Math.max(...parts) : 0
-  const applies = (level: number) => low > 0 && low <= level && level <= high
-  const differentiation = [
-    applies(1) || applies(2) ? 'For earlier reported levels, consider concise meanings, clear visual context, repeated language patterns, pointing, naming, labelling, and oral rehearsal.' : '',
-    applies(3) ? 'For learners around level 3, consider short connected explanations and flexible frames for comparison and cause and effect.' : '',
-    applies(4) || applies(5) ? 'For learners around levels 4–5, consider precise explanations, content relationships, evidence-based discussion, and opportunities for more independent language use.' : '',
-    applies(6) ? 'For learners around level 6, maintain age-appropriate academic complexity and offer flexible, purposeful language practice.' : '',
-  ].filter(Boolean)
-  const differentiationSection = differentiation.length ? `DIFFERENTIATION\n${differentiation.join('\n')}\nThese are flexible planning suggestions, not assumptions about any learner. Match support to the task and teacher observations, and preserve conceptual challenge.` : 'DIFFERENTIATION\nUse teacher-provided classroom observations and task context to suggest appropriate support. Do not infer a proficiency level. Preserve conceptual challenge.'
-  const selection = `Select ${count} essential words. For each, include a concise, accurate, student-friendly meaning and a short rationale connecting it to the objective. Use contextualised general academic words where they are essential alongside subject-specific terminology.`
-  const visualSection = visual ? `STUDENT VISUAL WORD BANK\nFor each selected word, present the English term prominently, its accurate meaning, and one short “Look closely” question that directs attention to an important feature or relationship. Where a visual is useful, choose a photograph for observable things, a labelled diagram for processes or relationships, or an illustration, gesture, or real object when more appropriate. Do not use decorative images that obscure the concept.\nIf your tool can create or retrieve and include an appropriate visual, do so and label generated imagery as such. For external images, provide a verifiable source, credit, and usage information; do not invent sources, licences, links, or verification. Ask the teacher to check factual accuracy, labels, and reuse rights. Never describe an image as embedded when it is not present. If visuals cannot actually be included, mark each missing item “Image needed” and give a specific visual brief.\n${includeTranslations ? `Provide context-appropriate translations in ${languages}, marked “Teacher verify”. Keep English prominent and provide separate language-specific versions if appropriate.` : 'Do not add translations unless the teacher requests them.'}\nUse a clear original educational reference style: generous white space, high-contrast headings, large useful visuals, restrained topic-appropriate accents, and consistent spacing. Avoid tiny thumbnails, dense tables, and unnecessary decoration. When a printable layout is available, aim for two or three entries per A4 page, with readable print-sized text.` : ''
-  const practiceSection = practice ? `LANGUAGE PRACTICE COMPANION\nFor each word, provide an accurate lesson-connected example sentence and one flexible partner-speaking frame that invites students to describe, compare, explain, or use evidence. Add a short partner activity requiring meaningful use of at least two words, and one brief way to revisit the vocabulary in speaking or writing. Do not supply students’ answers.` : ''
+  const selection = `Select ${count === '10' ? 'about 10' : count} essential vocabulary words. Use the lesson content and learning objective to prioritise words that help students understand and discuss the main concepts. If several subjects are included, create a separate bank for each subject. Use learner context to shape the meanings and readability without adding separate differentiation commentary.`
+  const translation = languages
+    ? `Translate each vocabulary term into ${languages}, using its meaning in this lesson. Use the correct script and, where there is no direct equivalent, a brief natural explanation. Label the column with the language's name. If several languages are requested, create a separate language-specific version for each, keeping English visible.`
+    : 'No home language is specified. Include a blank fourth column labelled “Home language” for families to complete; do not invent a language or translation.'
+  const table = `WORD BANK FORMAT\nUse a table with four columns:\n1. Vocabulary: the English word or phrase, displayed prominently.\n2. Kid-friendly meaning: one short, accurate explanation using familiar language. Explain the meaning in this lesson without depending on other unfamiliar words.\n3. Image: one finished, high-quality image that explains the word's meaning in this lesson. Include the actual image in the document and follow the image-creation requirements below.\n4. Home-language translation: ${translation}`
+  const images = 'IMAGE CREATION AND QUALITY\nCheck which image tools are available in this session. If a native image-generation tool or image model is available, explicitly invoke it to create the word-bank images before assembling the document. Use the highest supported quality and detail settings. Do not stop at describing images, writing image prompts or promising to generate them. Do not use document-drawing or coding tools as a shortcut for finished illustrations when image generation is available.\nCreate one individual image asset per vocabulary word. Use batching only if it returns separate images at full quality; do not shrink a contact sheet or generate the entire vocabulary table as one picture. Keep the vocabulary, meanings and translations as editable document text.\nFor each image, base the composition on the exact definition and lesson context: show the object, action, process or relationship that makes the meaning understandable. For abstract words, use a concrete scene that demonstrates the concept rather than an unrelated symbol. Prefer a polished educational illustration suitable for a professionally published school resource; choose a realistic photograph-style image or a precise explanatory diagram when that teaches the concept more clearly. Keep a coherent visual style, colour palette and level of finish across the bank. Use clear focal points, thoughtful composition, carefully rendered detail, natural proportions and uncluttered backgrounds. Make the concept age-appropriate without making it childish.\nGenerate images at a resolution suitable for crisp printing, ideally at least 1024 pixels on the shorter side when supported. Preserve their proportions and meaningful details when placing them in cells. Do not enlarge tiny images as a substitute for generating adequate resolution. Avoid emojis, generic clip-art icons, rough stick figures, crude placeholder sketches, blurry or pixelated assets, watermarks, distorted objects and garbled text. Clean mathematical models and accurate scientific diagrams are appropriate when they explain the term best. Add necessary diagram labels as clear document text where feasible.\nWhen image-viewing tools are available, inspect each finished image for meaning, subject accuracy, visual finish and readability at its intended print size. Regenerate or replace images that are vague, misleading, distorted or visually weak before assembling the table. When document-rendering tools are available, also inspect the final pages for sharpness, cropping and layout. Do not claim to have inspected or regenerated an image unless you actually did so.\nIf image generation is unavailable but image search and retrieval are supported, use high-quality, appropriately licensed photographs or professional illustrations that closely match the definitions. Do not invent images, sources or licences. If neither generation nor suitable image retrieval is available, provide the available vocabulary table and explain the image limitation separately in chat. Keep capability notices and placeholder labels out of the handout.'
+  const layout = 'LAYOUT\nUse an A4 layout with approximately five words per page. Allow more space when needed to keep text and images readable. Keep each vocabulary row together. Include a simple title identifying the grade, subject and supplied unit or topic. Use clear typography, generous spacing and restrained colour.\nKeep the handout focused on the vocabulary table. Do not add word-selection rationales, observation questions, practice activities, proficiency commentary, teacher-review checklists, verification labels or reminders, or extra notes pages. I will review the resource myself.'
   const formatInstructions: Record<string, string> = {
-    both: 'If your tool supports file creation, produce both an A4 print-ready PDF and an editable document or slide-compatible version. Name each file only if actually created.',
-    print: 'If your tool supports file creation, produce an A4 print-ready PDF. Name the file only if actually created.',
-    editable: 'If your tool supports file creation, produce an editable document or slide-compatible version. Name the file only if actually created.',
-    content: 'Provide the structured content in the response; do not create or claim to create files.',
+    both: 'When file creation is available, provide an editable Word document and an A4 print-ready PDF, with images embedded in both. Name or link only files actually created.',
+    print: 'When file creation is available, provide an A4 print-ready PDF with images embedded. Name or link only files actually created.',
+    editable: 'When file creation is available, provide an editable Word document with images embedded. Name or link only files actually created.',
+    content: 'Provide the complete vocabulary table in the response with actual images where supported; do not create or claim to create files.',
   }
-  const output = `OUTPUT AND TEACHER REVIEW\n${formatInstructions[format]} If your tool cannot create the requested files, provide complete structured content and explicitly list missing visual assets or export steps. Never claim that a file, image, source, or verification exists when it does not.\nBefore teaching, the teacher should check each word’s fit to the objective, subject accuracy, student-friendly meanings, visual labels and relevance, any translations, and print legibility. Offer opportunities to hear, say, read, and write the words without treating a single word bank as complete instruction.`
-  return [intro, context, selection, differentiationSection, visualSection, practiceSection, output, 'Lesson content:\n[PASTE LESSON CONTENT HERE]'].filter(Boolean).join('\n\n')
+  const output = `OUTPUT\n${formatInstructions[format]} If images or requested files cannot be created, explain the limitation separately in chat and provide the available table content. Keep error messages, image briefs and placeholder labels out of the handout. Do not claim that missing images or files exist.`
+  return [intro, context, selection, table, images, layout, output, 'Lesson content:\n[PASTE LESSON CONTENT HERE]'].filter(Boolean).join('\n\n')
 }
