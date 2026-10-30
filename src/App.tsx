@@ -4,6 +4,7 @@ import { Icon, type IconName } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
 import { WritingExample } from './components/WritingExample'
 import { SpeakingExample } from './components/SpeakingExample'
+import { LanguageDemandsExample } from './components/LanguageDemandsExample'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
 import volcanoSupport from './assets/learning/volcano-support.png'
@@ -213,37 +214,15 @@ function WritingScaffold() {
   </div>
 }
 
-function LanguageDemandNotice() {
-  const terms = ['compare', 'rate of change', 'initial value', 'representation', 'justify']
-  return <div className="demand-notice">
-    <section className="demand-section">
-      <h3>Terms to unlock</h3>
-      <div className="demand-terms">{terms.map((term) => <span key={term}>{term}</span>)}</div>
-    </section>
-    <section className="demand-section demand-task">
-      <h3>Students will need to</h3>
-      <p>Compare two rates of change, then justify which is greater.</p>
-    </section>
-    <section className="demand-section demand-frame" aria-labelledby="demand-frame-title">
-      <h3 id="demand-frame-title">Optional language frame</h3>
-      <p><span>The rate of change for ___ is ___,</span><span>while ___ is ___.</span><span>Therefore, ___ has the greater rate of change</span><span>because ___.</span></p>
-    </section>
-    <section className="demand-support" aria-labelledby="demand-support-title">
-      <Icon name="Lightbulb" size={17} />
-      <div><h3 id="demand-support-title">Start here</h3><p>Preteach the terms in a visual word bank, then rehearse the comparison aloud before writing.</p></div>
-    </section>
-  </div>
-}
-
 function Example({ strategy }: { strategy: Strategy }) {
   if (strategy.slug === 'scaffold-writing') return <WritingExample />
   if (strategy.slug === 'support-speaking') return <SpeakingExample />
+  if (strategy.slug === 'find-language-demands') return <LanguageDemandsExample />
   if (strategy.slug === 'build-a-word-bank') return <VisualWordBankExample />
   const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
     : strategy.example.type === 'visual' ? <VisualTranslationPlan />
         : strategy.example.type === 'writing' ? <WritingScaffold />
-          : strategy.example.type === 'demands' ? <LanguageDemandNotice />
-            : <p>{strategy.example.improved}</p>
+          : <p>{strategy.example.improved}</p>
   return <div className="strategy-content">
     <div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div>
     <div className="before-after">

@@ -4,6 +4,7 @@ export const defaultValues: Values = {
   GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_RESOURCE: 'both', WORD_BANK_COUNT: '4–6', WORD_BANK_TRANSLATIONS: 'yes', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
   WRITING_TEXT_TYPE: '', WRITING_PURPOSE: '', WRITING_AUDIENCE: '', WRITING_PREPARATION: '', WRITING_SUPPORT: 'auto',
   SPEAKING_QUESTION: '', SPEAKING_MATERIALS: '', SPEAKING_TIME: '3',
+  DEMANDS_RESPONSE: '',
 }
 
 export const speakingTimingOptions = [
@@ -133,12 +134,29 @@ export function buildWritingPrompt(template: string, values: Values) {
   ].filter(Boolean).join('\n\n')
 }
 
+/** A focused planning brief: source evidence is not evidence of learner difficulty. */
+export function buildLanguageDemandsPrompt(template: string, values: Values) {
+  const intro = buildPrompt(template.replace(/\n\nLesson:\n\[PASTE LESSON HERE\]\s*$/, ''), values)
+  const response = values.DEMANDS_RESPONSE?.trim()
+    ? `Teacher-specified demonstration of learning: ${values.DEMANDS_RESPONSE.trim()}\nUse this response requirement alongside the lesson. Flag conflicting instructions rather than silently replacing either.`
+    : 'The teacher has not specified how students will demonstrate learning. Use an explicit requirement in the lesson if present; otherwise label any proposed response mode as provisional and ask only if the choice would change the first move.'
+  return [intro, response,
+    'PURPOSE\nPrepare a concise teacher planning brief, not a rewritten lesson or a resource pack. Preserve the content goal, intellectual challenge and students’ own thinking. If no learning objective is supplied, infer a provisional purpose only from the lesson and label it as inferred. If the lesson itself is missing or unreadable, request the relevant task or excerpt before producing a demand analysis; do not invent one.',
+    'PRIORITIZE THE LANGUAGE WORK\nIdentify up to three priority demands, using fewer when sufficient. Rank them by their importance to the learning goal, the evidence in the material and any task-specific learner observations. Examine what learners must interpret through reading, listening or viewing, and express through speaking, writing or other required modes. A reported proficiency domain is context, not a reason to ignore other modes required by the task. Consider how the whole message is organized and connected (discourse), how clauses express relationships (sentence), and how words or phrases carry precise meaning. Do not force one demand per dimension, reduce the analysis to a list of difficult words, or assume every task needs argument or claim–evidence–reasoning.',
+    'EVIDENCE-TO-SUPPORT MAP\nFor each ranked demand, give:\n• Lesson evidence: an exact short quotation or a precise location, label or feature in the supplied material. Mark paraphrases and distinguish an explicit requirement from an inference. Never invent quotations, data, graph values, sources or unseen visual details.\n• Language work: explain the meaning students must interpret or communicate, the relevant mode(s), and the consequential language dimension(s). Give a brief contextual meaning for an essential term only when useful.\n• Possible barrier: distinguish teacher-reported observations from a hypothesis to investigate. Task wording shows a demand, not that any learner has difficulty with it. Keep linguistic access, subject understanding, task clarity and familiarity with the context distinct; do not infer deficits, cultural knowledge, disability or a WIDA score from a label, silence or an error.\n• Matched support: choose one of Adapt a Text, Build a Visual Word Bank, Translate a Visual, Support Speaking or Scaffold Writing, and explain specifically how it could address this demand. A match is a planning option, not a prescription or proof it is needed. If the immediate issue is missing material, ambiguous directions or content understanding, name that prerequisite instead of forcing a language scaffold.',
+    'ONE FIRST MOVE AND A QUICK CHECK\nRecommend one first move from the evidence, not a bundle of strategies. State why it comes first, what the teacher does and a short student-facing instruction; keep answers and evidence selection with students. Mark the choice provisional when learner evidence or essential material is absent, and name what must be confirmed before using it. Include one brief check that looks separately for content understanding and the targeted language work, not just completion, grammatical correctness or fluent delivery. Explain what observable response would justify continuing or fading the support, and what would lead the teacher to change the approach or investigate content understanding. Do not claim a quick check proves learning or diagnoses a learner.',
+    'OUTPUT\nA. Task focus: one or two sentences stating the content purpose, required response and any inference.\nB. Priority map: up to three ranked entries, each linking lesson evidence → language work → possible barrier and its evidence status → one matched support or prerequisite.\nC. Start here: one actionable first move, a brief student instruction, the quick check and an if/then adjustment.\nD. Confirm before teaching: only consequential missing information or assumptions. Ask no more than two focused questions, and only when their answers would change the recommendation; do not append routine questions when context is sufficient. Clearly separate material evidence, teacher observations and hypotheses. Do not generate a complete scaffold, answer the students’ task, assign a proficiency score or claim that a resource or diagnosis is validated.',
+    'Lesson:\n[PASTE LESSON HERE]',
+  ].join('\n\n')
+}
+
 /** Keep the form and regression checks on the same strategy-specific path. */
 export function buildStrategyPrompt(strategy: { slug: string; prompt: string }, values: Values) {
   if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
   if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)
   if (strategy.slug === 'scaffold-writing') return buildWritingPrompt(strategy.prompt, values)
   if (strategy.slug === 'support-speaking') return buildSpeakingPrompt(strategy.prompt, values)
+  if (strategy.slug === 'find-language-demands') return buildLanguageDemandsPrompt(strategy.prompt, values)
   return buildPrompt(strategy.prompt, values)
 }
 

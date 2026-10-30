@@ -33,7 +33,7 @@ const fieldPlaceholders: Record<string, string> = {
 
 export function PromptBox({ strategy }: { strategy: Strategy }) {
   const defaultDomain = strategy.slug === 'support-speaking' ? 'Speaking' : strategy.slug === 'scaffold-writing' ? 'Writing' : 'Reading'
-  const [values, setValues] = useState<Values>(() => ({ ...getSavedValues(), LANGUAGE_DOMAIN: defaultDomain }))
+  const [values, setValues] = useState<Values>(() => ({ ...getSavedValues(), LANGUAGE_DOMAIN: strategy.slug === 'find-language-demands' ? '' : defaultDomain }))
   const [copyState, setCopyState] = useState<'idle' | 'copying' | 'success' | 'error'>('idle')
   const manualPrompt = useRef<HTMLTextAreaElement>(null)
   const promptVersion = useRef(0)
@@ -47,6 +47,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   const isAdaptText = strategy.slug === 'adapt-a-text'
   const isWriting = strategy.slug === 'scaffold-writing'
   const isSpeaking = strategy.slug === 'support-speaking'
+  const isDemands = strategy.slug === 'find-language-demands'
   const prompt = useMemo(() => buildStrategyPrompt(strategy, values), [strategy, values])
   useEffect(() => {
     try {
@@ -72,7 +73,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   }
   return <section className="prompt-panel" aria-labelledby="prompt-title">
     <div className="prompt-heading"><span className="mini-icon"><Icon name="Sparkles" size={20} /></span><div><p className="eyebrow">Copy-ready prompt</p><h2 id="prompt-title">Make this prompt yours</h2></div></div>
-    <p className="prompt-intro">Adjust the details, then copy your prompt into your school-approved AI tool to create the materials.</p>
+    <p className="prompt-intro">Adjust the details, then copy your prompt into your school-approved AI tool to {isDemands ? 'identify the priorities and a useful first move' : 'create the materials'}.</p>
     <h3 className="builder-section-title">Your lesson</h3>
     <fieldset className="prompt-controls">
       <legend className="sr-only">Customize this prompt</legend>
@@ -81,7 +82,9 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     {(strategy.slug === 'support-speaking' || strategy.slug === 'scaffold-writing') && <p className="field-help">Leave the goal blank to request an inferred goal from your lesson material. The AI should label its suggestion and ask if more context is needed.</p>}
     <details className="word-builder-advanced"><summary>More lesson context <span>Optional</span></summary>
       <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
-      <p className="word-builder-note">The learning objective is not saved in this browser.</p>
+      {isDemands && <label className="word-builder-label">How will students show learning? <span>Optional</span><textarea id="demands-response" rows={2} value={values.DEMANDS_RESPONSE || ''} onChange={event => update('DEMANDS_RESPONSE', event.target.value)} placeholder="e.g., compare two graphs aloud, then write a justification using evidence" /></label>}
+      {isDemands && <p className="field-help">Leave blank to use the response required by the lesson. Any inferred response should be marked provisional. Add the task and relevant material after pasting into your AI tool.</p>}
+      <p className="word-builder-note">{isDemands ? 'Lesson-specific details are' : 'The learning objective is'} not saved in this browser.</p>
     </details>
     {isSpeaking && <section className="word-builder" aria-labelledby="speaking-builder-title">
       <h3 className="builder-section-title" id="speaking-builder-title">Your conversation</h3>

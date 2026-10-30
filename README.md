@@ -33,13 +33,15 @@ npm run build
 
 ## Editing content
 
-Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Shared personalization and the specialized text-adaptation, word-bank, writing, and speaking builders live in [`src/lib/prompt.ts`](src/lib/prompt.ts). `buildStrategyPrompt` selects the same builder for the form and regression checks. Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
+Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Shared personalization and the specialized text-adaptation, word-bank, writing, speaking, and language-demands builders live in [`src/lib/prompt.ts`](src/lib/prompt.ts). `buildStrategyPrompt` selects the same builder for the form and regression checks. Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
 
 Every strategy accepts an optional learning objective and classroom observations, with or without a reported proficiency level. Blank speaking and writing goals request a clearly labeled inference from the lesson material rather than substituting a preset goal.
 
 Scaffold Writing also accepts optional preparation evidence, text type, purpose, audience, and a requested support. It asks the teacher's chosen AI tool to prepare one next move in the Teaching and Learning Cycle, with student material, facilitation, ownership, and evidence for adjusting support. A support preference does not establish readiness for independent writing. See [the instructional review cases](docs/writing-prompt-review.md) for the source basis and remaining output-quality checks.
 
 Support Speaking accepts an optional discussion question, material list, and rehearsal duration. Its discussion card includes rotating speaker/listener responsibilities and time to refine an idea; the separate teacher guide includes participation routes, observable checks and support adjustments. The 1-, 3-, and 5-minute schedules include thinking, both exchanges and refinement; timings remain adjustable suggestions. See [the speaking review cases](docs/speaking-prompt-review.md).
+
+Find Language Demands asks for up to three evidence-linked priorities and one first move, distinguishing lesson demands, teacher observations and possible barriers. An optional response requirement is available under More lesson context. It is not saved. The brief includes a content/language check and an adjustment, not a complete resource pack or a learner diagnosis. See [the language-demands review cases](docs/language-demands-prompt-review.md).
 
 Only grade, subject, language, proficiency, and resource preferences are saved for the browser-tab session. Lesson-specific text, including goals, objectives, and learner observations, is excluded when saving and restoring preferences.
 
