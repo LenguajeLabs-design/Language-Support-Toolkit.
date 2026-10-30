@@ -38,7 +38,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   const manualPrompt = useRef<HTMLTextAreaElement>(null)
   const promptVersion = useRef(0)
   const placeholder = strategy.prompt.match(/\[PASTE [^\]]+\]/)?.[0] || '[PASTE LESSON MATERIAL HERE]'
-  const material = strategy.slug === 'translate-a-visual' ? 'visual labels or a description of your visual' : strategy.slug === 'scaffold-writing' ? 'assignment' : 'lesson material'
+  const material = strategy.slug === 'translate-a-visual' ? 'visual labels or a description of your visual' : strategy.slug === 'scaffold-writing' ? 'assignment' : strategy.slug === 'adapt-a-text' ? 'lesson text' : 'lesson material'
   const fields = useMemo(() => {
     const templateFields = Array.from(strategy.prompt.matchAll(/{{(.*?)}}/g)).map((match) => match[1])
     return [...coreFields, ...templateFields.filter((field) => field !== 'LEVEL' && !coreFields.includes(field))]
@@ -111,7 +111,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     </section>}
     {isAdaptText && <section className="word-builder" aria-labelledby="adapt-builder-title">
       <h3 className="builder-section-title" id="adapt-builder-title">Your text</h3>
-      <p>Choose the support that fits your learners. Add the lesson text after pasting the prompt into your AI tool.</p>
+      <p>After pasting the prompt into your AI tool, add your lesson text in the clearly marked area at the very top. The AI will return the adapted reading first, followed by supports and teacher notes.</p>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
         <label className="word-builder-label">Amount of language support <span>Optional</span><select value={values.ADAPT_SUPPORT || ''} onChange={event => update('ADAPT_SUPPORT', event.target.value)}><option value="">Let the AI suggest support</option><option value="light">Light support</option><option value="moderate">Moderate support</option><option value="substantial">Substantial support</option></select></label>
       </details>
@@ -138,10 +138,10 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <ProficiencyGuide values={values} defaultDomain={defaultDomain} update={update} />
     </details>
     <h3 className="builder-section-title">Copy your prompt</h3>
-    <p className="placeholder-note" id="placeholder-help">After pasting into your AI tool, replace <code>{placeholder}</code> with your {material}. Review every output before teaching.</p>
+    <p className="placeholder-note" id="placeholder-help">After pasting into your AI tool, replace <code>{placeholder}</code>{isAdaptText && ' at the top of the prompt'} with your {material}. Review every output before teaching.</p>
     <div className="prompt-footer prompt-copy-actions"><span className="review-note"><Icon name="Lightbulb" size={17} /> Teacher review required</span><button className={copyState === 'success' ? 'copy-button copied' : 'copy-button'} onClick={copy} disabled={copyState === 'copying'}><Icon name={copyState === 'success' ? 'Check' : 'Clipboard'} size={17} />{copyState === 'success' ? 'Prompt copied' : copyState === 'copying' ? 'Copying…' : 'Copy customized prompt'}</button></div>
     <div role="status" aria-live="polite" aria-atomic="true">
-      {copyState === 'success' && <div className="copy-success"><Icon name="Check" size={20} /><div><strong>Prompt copied.</strong><span>Open your AI tool, paste the prompt, and replace the bracketed placeholder with your {material}.</span></div></div>}
+      {copyState === 'success' && <div className="copy-success"><Icon name="Check" size={20} /><div><strong>Prompt copied.</strong><span>Open your AI tool, paste the prompt, and replace the bracketed placeholder{isAdaptText && ' at the top'} with your {material}.</span></div></div>}
       {copyState === 'error' && <p className="copy-error">Automatic copying was unavailable. Select the prompt below and copy it manually, then paste it into your school-approved AI tool and replace {placeholder} with your {material}.</p>}
     </div>
     {copyState === 'error' && <div className="manual-copy">
