@@ -2,7 +2,25 @@ export type Values = Record<string, string>
 
 export const defaultValues: Values = {
   GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_COUNT: '10', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
+  WRITING_TEXT_TYPE: '', WRITING_PURPOSE: '', WRITING_AUDIENCE: '', WRITING_PREPARATION: '', WRITING_SUPPORT: 'auto',
 }
+
+export const writingSupportOptions = [
+  { value: 'auto', label: 'Suggest the next useful support' },
+  { value: 'field', label: 'Build knowledge before writing' },
+  { value: 'explore', label: 'Explore how this text type works' },
+  { value: 'joint', label: 'Compose a practice text together' },
+  { value: 'independent', label: 'Plan and write with lighter support' },
+  { value: 'revise', label: 'Review and revise a draft' },
+] as const
+
+const writingSupportGuidance = {
+  field: 'Prepare a focused content-building task using the supplied material: meaningful reading, observation or discussion, questions that deepen understanding, and a way to record ideas and evidence for the writing. Vocabulary alone is not sufficient content preparation.',
+  explore: 'Prepare guided, interactive analysis of a relevant mentor-text excerpt. Give concrete questions about purpose, audience, organization and consequential language choices, and ask students to explain how those choices work. Connect the discoveries to criteria students can help develop.',
+  joint: 'Prepare a joint-construction routine on a related but different task in the same text type. Give open teacher prompts for students to propose and negotiate ideas, evidence, organization and wording while the teacher scribes, recasts selectively and rereads with them. Do not supply a finished joint text in advance.',
+  independent: 'If the preparation evidence supports reduced assistance, prepare a focused planning or drafting aid in the same text type. Retain access to shared notes, mentor texts and co-developed criteria; target only the observed need. Leave content, evidence selection and wording with students. Independent writing may still include peer support and targeted conferencing.',
+  revise: 'Prepare a short review-and-revision routine using the supplied draft and shared text-type criteria. Ask students to locate evidence of effectiveness, choose one meaningful content or language improvement, explain the choice and revise it themselves. If no draft is supplied, request an anonymized excerpt in the AI tool and provide a review protocol rather than inventing student writing.',
+} as const
 
 export const wordBankCountOptions = [
   { value: '10', label: 'About 10 words (recommended)' },
@@ -62,6 +80,43 @@ export function buildPrompt(template: string, values: Values) {
     : 'Do not assume every student uses the same language or needs the same support.'
 
   return [contextualPrompt, domainContext, objectiveContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
+}
+
+/** TLC principles: Spycher (2017), PDF pp. 7–12 and 17–26; task routing is a design inference. */
+export function buildWritingPrompt(template: string, values: Values) {
+  const intro = buildPrompt(template.replace(/\n\nAssignment:\n\[PASTE ASSIGNMENT HERE\]\s*$/, ''), {
+    ...values,
+    LANGUAGE_DOMAIN: values.LANGUAGE_DOMAIN?.trim() || 'Writing',
+  })
+  const preference = writingSupportOptions.find(option => option.value === values.WRITING_SUPPORT) || writingSupportOptions[0]
+  const preparation = values.WRITING_PREPARATION?.trim()
+  const context = [
+    values.WRITING_TEXT_TYPE?.trim() ? `Teacher-specified text type: ${values.WRITING_TEXT_TYPE.trim()}` : 'Text type was not specified. Infer a provisional text type from the assignment and label the inference; do not force every task into claim–evidence–reasoning or a five-paragraph structure.',
+    values.WRITING_PURPOSE?.trim() ? `Purpose of the writing: ${values.WRITING_PURPOSE.trim()}` : 'Purpose was not specified. Use the assignment to propose a purpose and label any assumption.',
+    values.WRITING_AUDIENCE?.trim() ? `Intended audience: ${values.WRITING_AUDIENCE.trim()}` : 'Audience was not specified. Label any provisional audience; do not invent an authentic recipient.',
+    preparation ? `Teacher-reported preparation and current performance: ${preparation}` : 'No preparation evidence was supplied. Mark the readiness judgment PROVISIONAL and do not assume that students have completed any stage.',
+    preference.value === 'auto' ? 'No support preference was selected. Recommend one primary next move from the evidence, or make a provisional recommendation when evidence is incomplete.' : `Requested support: ${preference.label}. This is a teacher preference, not evidence of learner readiness. If a more immediate preparation gap is evident, explain it and prepare the support that addresses that gap first.`,
+  ].join('\n')
+  const selectedSupport = preference.value === 'auto' ? '' : `REQUESTED RESOURCE\n${writingSupportGuidance[preference.value]}`
+  return [intro, context,
+    'GOAL\nPrepare one useful writing support matched to this assignment, its text type, and what learners can currently do. Preserve the grade-level content, intellectual challenge and student authorship. Use reported proficiency alongside task-specific observations; neither a score nor a selected activity proves readiness.',
+    '1. LOCATE THE NEXT MOVE\nIdentify the writing purpose, audience, essential content, and the language choices that matter at whole-text, paragraph, sentence and word levels. Focus on the choices that carry meaning in this task. Separate teacher-provided evidence from inference, and distinguish a missing stage from one that needs strengthening. Choose the smallest useful next move in the Teaching and Learning Cycle; do not produce a whole unit or all five stages. If an essential detail is missing, ask one focused question and label any provisional materials. If the assignment itself is missing, request it before inventing a task.',
+    'PREPARATION CHECK\nBefore recommending Independent Construction, look for evidence of adequate content knowledge, interactive exploration of relevant mentor texts, and meaningful joint construction in the same text type. Activity labels, a completed organizer or the lesson schedule do not establish this evidence. If evidence is absent, mark readiness PROVISIONAL and suggest a focused preparation step. Joint Construction means students negotiate meanings and wording while the teacher scribes and facilitates; teacher-only modeling, copying, filling a frame or editing a finished teacher text do not count.',
+    'SUPPORT MENU — CHOOSE ONE PRIMARY MOVE\nBuilding the Field: deepen content knowledge through language-rich experience, talk, reading and evidence gathering.\nExploring the Language of a Text Type: interactively investigate how relevant mentor texts achieve their purpose through organization and language.\nJoint Construction: rehearse a related text through negotiated student contributions and teacher scribing.\nIndependent Construction: reduce and differentiate support when preparation evidence warrants it, retaining student ownership.\nReview, Reflect & Revise: use shared genre-relevant criteria for meaningful feedback and student-led revision.',
+    selectedSupport,
+    '2. MAKE THE RESOURCE\nWrite the actual student instructions, questions, organizer or prompts needed for the selected move, with a short, separate teacher facilitation guide. Do not merely advise the teacher to create them. Match the resource to the text type; a science explanation, historical argument and narrative require different organization and language. Include only useful vocabulary or a few optional, flexible frames tied to an evidenced need. Avoid automatically supplying a full paragraph template or an oversized worksheet pack. For joint construction, give teacher prompts and student decisions instead of a pre-composed class answer. For mentor-text exploration, use a supplied text where suitable. If none is available, use only supplied facts for a clearly labeled illustrative excerpt on a parallel topic; otherwise provide a specific text-selection brief marked “Mentor text needed”. Never invent investigation results, quotations, sources or student performance. Do not complete the students’ actual assignment.',
+    '3. FACILITATE AND CHECK\nGive three to five concise steps stating what the teacher does or asks and what students do, contribute and decide. Name what remains student-owned. Reuse supplied, co-developed success criteria; if none are supplied, suggest two or three task-specific criteria to discuss and refine with students after investigating examples. State observable evidence of content understanding and language use, one precise trigger for fading or changing a support, and one response if learners still need help. Do not assume that finishing the resource means students are ready for independent writing. Keep feedback focused on meaning, organization and language, not proofreading alone.',
+    'OUTPUT\nA. Task and recommended next move: a brief rationale, evidence and any provisional judgment.\nB. Student material: the usable resource for that one move.\nC. Teacher guide: facilitation, student ownership, checks and support adjustment.\nD. Review before teaching: assumptions, missing materials and content or language to verify. Keep these sections clearly separated and concise. Do not claim that a generated resource has been validated for a WIDA level, that learning has occurred, or that a file or source exists when it does not.',
+    'Assignment:\n[PASTE ASSIGNMENT HERE]',
+  ].filter(Boolean).join('\n\n')
+}
+
+/** Keep the form and regression checks on the same strategy-specific path. */
+export function buildStrategyPrompt(strategy: { slug: string; prompt: string }, values: Values) {
+  if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
+  if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)
+  if (strategy.slug === 'scaffold-writing') return buildWritingPrompt(strategy.prompt, values)
+  return buildPrompt(strategy.prompt, values)
 }
 
 /** Put the source passage first and request a student reading before supporting notes. */

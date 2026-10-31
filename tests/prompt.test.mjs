@@ -1,13 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { strategies } from '../src/data/strategies.ts'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, getWordBankCount } from '../src/lib/prompt.ts'
+import { buildAdaptedTextPrompt, buildPrompt, buildStrategyPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, getWordBankCount } from '../src/lib/prompt.ts'
 
 // Exercise the same specialized builders that the customization form uses.
 function personalizedPrompt(strategy, values) {
-  if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
-  if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)
-  return buildPrompt(strategy.prompt, values)
+  return buildStrategyPrompt(strategy, values)
 }
 
 test('text adaptation uses optional teacher context without inventing proficiency', () => {

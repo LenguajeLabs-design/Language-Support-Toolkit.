@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, wordBankCountOptions, type Values } from '../lib/prompt'
+import { buildStrategyPrompt, defaultValues, getSessionPreferences, wordBankCountOptions, writingSupportOptions, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
 const coreFields = ['GRADE', 'SUBJECT', 'HOME_LANGUAGE']
@@ -45,7 +45,8 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   }, [strategy.prompt])
   const isWordBank = strategy.slug === 'build-a-word-bank'
   const isAdaptText = strategy.slug === 'adapt-a-text'
-  const prompt = useMemo(() => isWordBank ? buildWordBankPrompt(strategy.prompt, values) : isAdaptText ? buildAdaptedTextPrompt(values) : buildPrompt(strategy.prompt, values), [strategy.prompt, values, isWordBank, isAdaptText])
+  const isWriting = strategy.slug === 'scaffold-writing'
+  const prompt = useMemo(() => buildStrategyPrompt(strategy, values), [strategy, values])
   useEffect(() => {
     try {
       window.sessionStorage.setItem(promptContextStorageKey, JSON.stringify(getSessionPreferences(values)))
@@ -82,6 +83,19 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
       <p className="word-builder-note">The learning objective is not saved in this browser.</p>
     </details>
+    {isWriting && <section className="word-builder" aria-labelledby="writing-builder-title">
+      <h3 className="builder-section-title" id="writing-builder-title">Your writing task</h3>
+      <p>Help the AI choose a useful next step. Add the assignment and any relevant mentor text or anonymized draft after pasting the prompt into your AI tool.</p>
+      <label className="word-builder-label">What have students already done? <span>Optional</span><textarea rows={3} value={values.WRITING_PREPARATION || ''} onChange={event => update('WRITING_PREPARATION', event.target.value)} placeholder="What can they do with and without support? Have they explored examples or helped compose a text together?" /></label>
+      <details className="word-builder-advanced"><summary>More writing choices <span>Optional</span></summary>
+        <label className="word-builder-label">Text type <span>Optional</span><input value={values.WRITING_TEXT_TYPE || ''} onChange={event => update('WRITING_TEXT_TYPE', event.target.value)} placeholder="e.g., science explanation, historical argument, narrative" /></label>
+        <label className="word-builder-label">Purpose <span>Optional</span><input value={values.WRITING_PURPOSE || ''} onChange={event => update('WRITING_PURPOSE', event.target.value)} placeholder="What should the writing help its reader understand or consider?" /></label>
+        <label className="word-builder-label">Audience <span>Optional</span><input value={values.WRITING_AUDIENCE || ''} onChange={event => update('WRITING_AUDIENCE', event.target.value)} placeholder="e.g., classmates, a younger class, readers of a school magazine" /></label>
+        <label className="word-builder-label">Support to prepare<select value={values.WRITING_SUPPORT || 'auto'} onChange={event => update('WRITING_SUPPORT', event.target.value)}>{writingSupportOptions.map(option => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>
+        <p className="word-builder-note">The AI should check students’ preparation before recommending greater independence.</p>
+      </details>
+      <p className="word-builder-note">Writing-task details are not saved in this browser. Avoid student-identifying details.</p>
+    </section>}
     {isAdaptText && <section className="word-builder" aria-labelledby="adapt-builder-title">
       <h3 className="builder-section-title" id="adapt-builder-title">Your text</h3>
       <p>After pasting the prompt into your AI tool, add your lesson text in the clearly marked area at the very top. The AI will return the adapted reading first, followed by supports and teacher notes.</p>
