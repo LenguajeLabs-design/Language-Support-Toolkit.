@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
-import { buildStrategyPrompt, defaultValues, getSessionPreferences, wordBankCountOptions, writingSupportOptions, type Values } from '../lib/prompt'
+import { buildStrategyPrompt, defaultValues, getSessionPreferences, speakingTimingOptions, wordBankCountOptions, writingSupportOptions, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
 const coreFields = ['GRADE', 'SUBJECT', 'HOME_LANGUAGE']
@@ -46,6 +46,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   const isWordBank = strategy.slug === 'build-a-word-bank'
   const isAdaptText = strategy.slug === 'adapt-a-text'
   const isWriting = strategy.slug === 'scaffold-writing'
+  const isSpeaking = strategy.slug === 'support-speaking'
   const prompt = useMemo(() => buildStrategyPrompt(strategy, values), [strategy, values])
   useEffect(() => {
     try {
@@ -83,6 +84,19 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
       <p className="word-builder-note">The learning objective is not saved in this browser.</p>
     </details>
+    {isSpeaking && <section className="word-builder" aria-labelledby="speaking-builder-title">
+      <h3 className="builder-section-title" id="speaking-builder-title">Your conversation</h3>
+      <p>Prepare a discussion card students can use with a partner. Add your lesson material after pasting the prompt into your AI tool.</p>
+      <label className="word-builder-label" htmlFor="speaking-question">Discussion question <span>Optional</span></label>
+      <textarea className="speaking-question-input" id="speaking-question" rows={2} value={values.SPEAKING_QUESTION || ''} onChange={event => update('SPEAKING_QUESTION', event.target.value)} placeholder="e.g., Which explanation best fits the evidence, and why?" />
+      <details className="word-builder-advanced"><summary>More speaking choices <span>Optional</span></summary>
+        <label className="word-builder-label" htmlFor="speaking-time">Partner rehearsal time</label>
+        <select className="speaking-time-input" id="speaking-time" value={values.SPEAKING_TIME || '3'} onChange={event => update('SPEAKING_TIME', event.target.value)}>{speakingTimingOptions.map(option => <option value={option.value} key={option.value}>{option.label}</option>)}</select>
+        <p className="field-help">Includes thinking time, both partners’ turns, and time to refine an idea together. Extend it when learners need more time.</p>
+        <label className="word-builder-label">Materials students can refer to <span>Optional</span><input value={values.SPEAKING_MATERIALS || ''} onChange={event => update('SPEAKING_MATERIALS', event.target.value)} placeholder="e.g., two source extracts, a labeled diagram, investigation results" /></label>
+      </details>
+      <p className="word-builder-note">Conversation details are not saved in this browser. Avoid student-identifying details.</p>
+    </section>}
     {isWriting && <section className="word-builder" aria-labelledby="writing-builder-title">
       <h3 className="builder-section-title" id="writing-builder-title">Your writing task</h3>
       <p>Help the AI choose a useful next step. Add the assignment and any relevant mentor text or anonymized draft after pasting the prompt into your AI tool.</p>

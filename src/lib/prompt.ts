@@ -3,7 +3,15 @@ export type Values = Record<string, string>
 export const defaultValues: Values = {
   GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_COUNT: '10', WORD_BANK_FORMAT: 'both', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
   WRITING_TEXT_TYPE: '', WRITING_PURPOSE: '', WRITING_AUDIENCE: '', WRITING_PREPARATION: '', WRITING_SUPPORT: 'auto',
+  SPEAKING_QUESTION: '', SPEAKING_MATERIALS: '', SPEAKING_TIME: '3',
 }
+
+export const speakingTimingOptions = [
+  { value: '3', label: '3 minutes · partner exchange', totalSeconds: 180, thinkSeconds: 30, turnSeconds: 60, refineSeconds: 30 },
+  { value: '1', label: '1 minute · quick rehearsal', totalSeconds: 60, thinkSeconds: 10, turnSeconds: 20, refineSeconds: 10 },
+  { value: '5', label: '5 minutes · extended exchange', totalSeconds: 300, thinkSeconds: 60, turnSeconds: 90, refineSeconds: 60 },
+  { value: 'auto', label: 'Let the AI suggest timing', totalSeconds: null, thinkSeconds: null, turnSeconds: null, refineSeconds: null },
+] as const
 
 export const writingSupportOptions = [
   { value: 'auto', label: 'Suggest the next useful support' },
@@ -82,6 +90,31 @@ export function buildPrompt(template: string, values: Values) {
   return [contextualPrompt, domainContext, objectiveContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
 }
 
+/** A discussion card and teacher guide; timing profiles are adjustable planning suggestions. */
+export function buildSpeakingPrompt(template: string, values: Values) {
+  const intro = buildPrompt(template.replace(/\n\nLesson context:\n\[PASTE LESSON CONTEXT HERE\]\s*$/, ''), {
+    ...values,
+    LANGUAGE_DOMAIN: values.LANGUAGE_DOMAIN?.trim() || 'Speaking',
+  })
+  const timing = speakingTimingOptions.find(option => option.value === values.SPEAKING_TIME) || speakingTimingOptions[0]
+  const context = [
+    values.SPEAKING_QUESTION?.trim() ? `Teacher's discussion question: ${values.SPEAKING_QUESTION.trim()}\nUse this question as the focus. Flag any mismatch with the goal and suggest a clearly labeled adjustment rather than silently replacing it.` : 'No discussion question was supplied. Create one focused question from the lesson material and speaking goal; label the question as proposed.',
+    values.SPEAKING_MATERIALS?.trim() ? `Materials learners can refer to: ${values.SPEAKING_MATERIALS.trim()}` : 'No supporting materials were named. Use the supplied lesson context and identify any text, visual or other material needed; do not assume that a particular resource exists.',
+  ].join('\n')
+  const schedule = timing.value === 'auto'
+    ? 'TIMING\nSuggest an adjustable duration that fits the task and observations. Account for private thinking, both speaker/listener exchanges and joint refinement within the total. Label the timing as a suggestion, and allow more processing or communication time when needed.'
+    : `TIMING\nRequested partner rehearsal: ${timing.label} (${timing.totalSeconds} seconds total). Use this suggested schedule, including all four steps:\n1. Think privately — ${timing.thinkSeconds} seconds. Prepare an idea using the lesson material, notes or a sketch.\n2. A shares; B listens and responds — ${timing.turnSeconds} seconds. Within this turn, B asks a relevant question or builds on the idea, and A has time to reply.\n3. B shares; A listens and responds — ${timing.turnSeconds} seconds. Swap the same responsibilities, including a reply.\n4. Refine together — ${timing.refineSeconds} seconds. State one clarified idea or a meaningful difference in reasoning; agreement is not required.\nTreat these times as adjustable planning suggestions, not a speed test. A one-minute routine is a quick rehearsal of familiar material, not a substitute for extended discussion. If the task or learners need more time, explain the adjustment and revise the total rather than silently overfilling the schedule.`
+  return [intro, context,
+    'GOAL\nCreate one usable student discussion card and a concise teacher guide for purposeful speaking and listening. Preserve the lesson content, intellectual challenge and students’ own ideas. Match the interaction to the speaking goal: explaining, comparing, narrating or justifying should produce different questions and language support. If essential lesson context is missing, ask one focused question and mark any provisional planning; do not invent a lesson, investigation results, quotations, sources or learner abilities.',
+    'STUDENT DISCUSSION CARD\nWrite the actual student-facing question and instructions, not advice to create them. The question should require meaningful thinking and a reason to listen and respond, using lesson details or evidence where appropriate. Give A and B clear, rotating responsibilities: contribute an idea, listen for meaning, ask for clarification or extend or respectfully challenge a reason, respond, then refine. Do not reduce the listener to waiting for a turn or checking that a frame was recited. Keep decisions, interpretations and answers with students.\nSelect up to 3–5 useful words or phrases from the supplied lesson and goal, with concise, accurate meanings in context; use fewer when sufficient. Offer up to three optional, flexible speaking moves for contributing, clarifying and building on or questioning an idea. Tie them to the task and allow students to use their own wording. Do not prefill the students’ conclusions or give a complete answer to the discussion question. Keep the card uncluttered and readable when projected or printed; do not make an oversized worksheet pack.',
+    schedule,
+    'ACCESS TO PARTICIPATION\nGive two concrete participation routes that preserve the thinking and two-way interaction: for example, prepare a sketch or point to a visual while explaining, or rehearse using notes or a familiar language before sharing. Use observations and the teacher’s context rather than assigning options solely by a WIDA level. Students may draw on spoken or signed languages and communication supports they already use; do not assume the same languages, literacy or needs for every learner. Keep useful English academic terms available. A recording or written note can support preparation but should not silently replace all peer response. Include flexible processing time and a prepared route to sharing without compulsory public performance.',
+    'TEACHER GUIDE\nGive three or four concise facilitation steps: prepare the named materials and question, clarify the roles, monitor the exchange and help students revisit an idea. Model a speaking or listening move on a different example if useful, without supplying the answer to the actual task. Identify one observable sign of content understanding and one of responsive listening or language use. Do not equate equal turns, speed, accent or grammatical perfection with understanding. Name one adjustment if learners repeat frames without communicating meaning, and one specific trigger for fading an optional frame while retaining access to vocabulary or other useful supports. Distinguish observations from claims about learning; do not invent a proficiency score or declare the resource validated for a WIDA level.',
+    'OUTPUT\nA. Student discussion card: focus question, short purpose, optional vocabulary and speaking moves, roles and the timed routine.\nB. Teacher guide: preparation, facilitation, two participation routes, what to look or listen for, and how to adjust support.\nC. Review before teaching: brief assumptions, missing materials and content or language to verify. Provide complete structured content; name a file, image or source only if it actually exists. Keep student instructions separate from teacher notes.',
+    'Lesson context:\n[PASTE LESSON CONTEXT HERE]',
+  ].join('\n\n')
+}
+
 /** TLC principles: Spycher (2017), PDF pp. 7–12 and 17–26; task routing is a design inference. */
 export function buildWritingPrompt(template: string, values: Values) {
   const intro = buildPrompt(template.replace(/\n\nAssignment:\n\[PASTE ASSIGNMENT HERE\]\s*$/, ''), {
@@ -116,6 +149,7 @@ export function buildStrategyPrompt(strategy: { slug: string; prompt: string }, 
   if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
   if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)
   if (strategy.slug === 'scaffold-writing') return buildWritingPrompt(strategy.prompt, values)
+  if (strategy.slug === 'support-speaking') return buildSpeakingPrompt(strategy.prompt, values)
   return buildPrompt(strategy.prompt, values)
 }
 

@@ -3,6 +3,7 @@ import { Header } from './components/Header'
 import { Icon, type IconName } from './components/Icon'
 import { PromptBox } from './components/PromptBox'
 import { WritingExample } from './components/WritingExample'
+import { SpeakingExample } from './components/SpeakingExample'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
 import volcanoSupport from './assets/learning/volcano-support.png'
@@ -234,37 +235,15 @@ function LanguageDemandNotice() {
   </div>
 }
 
-function SpeakingScaffold() {
-  const words = ['inequality', 'taxes', 'protest', 'cause', 'effect']
-  return <div className="speaking-scaffold">
-    <section className="speaking-think">
-      <h3>Think first</h3>
-      <p>Which cause had the biggest impact?</p>
-      <div>{words.map((word) => <span key={word}>{word}</span>)}</div>
-    </section>
-    <section className="speaking-rehearse" aria-labelledby="speaking-rehearse-title">
-      <h3 id="speaking-rehearse-title">Rehearse with a partner</h3>
-      <div className="speaking-moves">
-        <div><strong>Share an idea</strong><p>“I think ___ was important because ___.”</p></div>
-        <div><strong>Build on an idea</strong><p>“I want to add to ___’s idea. ___.”</p></div>
-      </div>
-    </section>
-    <section className="speaking-share" aria-labelledby="speaking-share-title">
-      <Icon name="MessageCircle" size={17} />
-      <div><h3 id="speaking-share-title">When you’re ready</h3><p>Choose one idea your pair is ready to explain.</p></div>
-    </section>
-  </div>
-}
-
 function Example({ strategy }: { strategy: Strategy }) {
   if (strategy.slug === 'scaffold-writing') return <WritingExample />
+  if (strategy.slug === 'support-speaking') return <SpeakingExample />
   if (strategy.slug === 'build-a-word-bank') return <VisualWordBankExample />
   const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
     : strategy.example.type === 'visual' ? <VisualTranslationPlan />
         : strategy.example.type === 'writing' ? <WritingScaffold />
           : strategy.example.type === 'demands' ? <LanguageDemandNotice />
-            : strategy.example.type === 'speaking' ? <SpeakingScaffold />
-              : <p>{strategy.example.improved}</p>
+            : <p>{strategy.example.improved}</p>
   return <div className="strategy-content">
     <div className="example-heading"><div><p className="eyebrow">{strategy.example.context}</p><h2>See what changes—and what stays rigorous.</h2></div><span className="example-tag">Before → after</span></div>
     <div className="before-after">

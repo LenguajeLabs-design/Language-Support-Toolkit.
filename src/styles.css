@@ -743,6 +743,46 @@ p { line-height: 1.55; }
 }
 
 
+/* A readable discussion card with rotating roles and a separate teacher guide. */
+#speaking-builder-title ~ .word-builder-label { margin-bottom: 8px; }
+.speaking-question-input, .speaking-time-input { display: block; width: 100%; min-height: 48px; padding: 12px; border: 1px solid #b9cede; border-radius: 8px; background: white; color: #183450; font: inherit; }
+.speaking-question-input { resize: vertical; }
+.speaking-time-input { margin-top: -12px; }
+.speaking-comparison { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(0, 1.85fr); gap: 26px; align-items: start; }
+.speaking-example-card { overflow: hidden; border: 1px solid #d6c9e7; border-radius: 13px; background: white; }
+.speaking-example-card > header { padding: 24px; background: #402e62; color: white; }
+.speaking-example-card > header > span { color: #e2d3fa; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.speaking-example-card h3 { margin: 12px 0; font-size: 1.8rem; }
+.speaking-example-card > header p { margin: 0; color: #f1eafa; line-height: 1.65; }
+.speaking-card-body { padding: 24px; }
+.speaking-card-body > h4 { margin: 24px 0 14px; color: #402e62; font-size: 1.05rem; }
+.speaking-example-words { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.speaking-example-words dt { color: #523779; font-weight: 800; }
+.speaking-example-words dd { margin: 6px 0 0; color: #40556c; font-size: .9rem; line-height: 1.55; }
+.speaking-example-routine { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.speaking-example-routine li { padding: 16px; border: 1px solid #e2d9ed; border-radius: 9px; background: #f8f5fc; }
+.speaking-example-routine li > div { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.speaking-example-routine li > div > span { color: #74539d; font-weight: 850; }
+.speaking-example-routine h5 { margin: 0; color: #402e62; font-size: .95rem; }
+.speaking-example-routine small { margin-left: auto; color: #6b597f; }
+.speaking-example-routine p { margin: 10px 0 0; color: #344b63; font-size: .92rem; line-height: 1.65; }
+.speaking-example-moves { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.speaking-example-moves strong { color: #523779; font-size: .9rem; }
+.speaking-example-moves p { margin: 8px 0 0; color: #344b63; line-height: 1.6; font-size: .92rem; }
+.speaking-card-note { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid #e2d9ed; color: #536b82; font-size: .88rem; line-height: 1.65; }
+.speaking-example-teacher { margin-top: 28px; padding: 24px; border-radius: 12px; background: #eef5fa; }
+.speaking-example-teacher > h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; color: #234866; font-size: 1.35rem; }
+.speaking-example-teacher > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.speaking-example-teacher h4 { margin: 0; color: #315570; font-size: 1rem; }
+.speaking-example-teacher p { margin: 9px 0 0; color: #40556c; font-size: .93rem; line-height: 1.65; }
+@media (max-width: 900px) {
+  .speaking-comparison { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .speaking-example-card > header, .speaking-card-body, .speaking-example-teacher { padding: 20px; }
+  .speaking-example-words, .speaking-example-routine, .speaking-example-moves, .speaking-example-teacher > div { grid-template-columns: 1fr; gap: 20px; }
+}
+
 /* Evidence of preparation and shared criteria frame the writing example. */
 .writing-preparation { margin: 0 0 26px; padding: 20px 24px; border-left: 4px solid #b5872d; border-radius: 8px; background: #fff8e8; color: #554522; }
 .writing-preparation p { margin: 8px 0 0; line-height: 1.65; }
