@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
-import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getWordBankCount, wordBankCountOptions, type Values } from '../lib/prompt'
+import { buildAdaptedTextPrompt, buildPrompt, buildWordBankPrompt, defaultValues, getSessionPreferences, wordBankCountOptions, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
 const coreFields = ['GRADE', 'SUBJECT', 'HOME_LANGUAGE']
@@ -12,10 +12,9 @@ function getSavedValues(): Values {
     const saved = window.sessionStorage.getItem(promptContextStorageKey)
     if (!saved) return defaultValues
 
-    const savedValues = JSON.parse(saved) as Values
-    // Preserve the earlier Translate-a-Visual language value as this shared field.
-    const homeLanguage = savedValues.HOME_LANGUAGE ?? savedValues.LANGUAGE ?? ''
-    return { ...defaultValues, ...savedValues, HOME_LANGUAGE: homeLanguage, WORD_BANK_COUNT: getWordBankCount(savedValues.WORD_BANK_COUNT) }
+    const savedValues: unknown = JSON.parse(saved)
+    if (!savedValues || typeof savedValues !== 'object' || Array.isArray(savedValues)) return defaultValues
+    return { ...defaultValues, ...getSessionPreferences(savedValues as Record<string, unknown>) }
   } catch {
     return defaultValues
   }
@@ -23,6 +22,12 @@ function getSavedValues(): Values {
 
 const labels: Record<string, string> = {
   GRADE: 'Grade level', LEVEL: 'Proficiency range', SUBJECT: 'Subject', HOME_LANGUAGE: 'Home language(s)', SPEAKING_GOAL: 'Speaking goal', WRITING_GOAL: 'Writing goal',
+}
+
+const fieldPlaceholders: Record<string, string> = {
+  HOME_LANGUAGE: 'e.g., Arabic, Spanish, Mixtec',
+  SPEAKING_GOAL: 'e.g., compare two historical interpretations',
+  WRITING_GOAL: 'e.g., explain how evidence supports a claim',
 }
 
 
@@ -43,9 +48,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   const prompt = useMemo(() => isWordBank ? buildWordBankPrompt(strategy.prompt, values) : isAdaptText ? buildAdaptedTextPrompt(values) : buildPrompt(strategy.prompt, values), [strategy.prompt, values, isWordBank, isAdaptText])
   useEffect(() => {
     try {
-      const { LESSON_TITLE, LEARNING_OBJECTIVE, KEY_TERMS, ADAPT_OBJECTIVE, ADAPT_OBSERVATIONS, ...savedChoices } = values
-      void LESSON_TITLE; void LEARNING_OBJECTIVE; void KEY_TERMS; void ADAPT_OBJECTIVE; void ADAPT_OBSERVATIONS
-      window.sessionStorage.setItem(promptContextStorageKey, JSON.stringify(savedChoices))
+      window.sessionStorage.setItem(promptContextStorageKey, JSON.stringify(getSessionPreferences(values)))
     } catch {
       // The prompt remains usable when browser storage is unavailable.
     }
@@ -71,17 +74,19 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     <h3 className="builder-section-title">Your lesson</h3>
     <fieldset className="prompt-controls">
       <legend className="sr-only">Customize this prompt</legend>
-      {fields.map((field) => <label key={field}><span>{labels[field] || field.replaceAll('_', ' ').toLowerCase()}{field === 'HOME_LANGUAGE' && <em>Optional</em>}</span><input value={values[field] || ''} placeholder={field === 'HOME_LANGUAGE' ? 'e.g., Arabic, Spanish, Mixtec' : undefined} onChange={(event) => update(field, event.target.value)} /></label>)}
+      {fields.map((field) => <label key={field}><span>{labels[field] || field.replaceAll('_', ' ').toLowerCase()}{['HOME_LANGUAGE', 'SPEAKING_GOAL', 'WRITING_GOAL'].includes(field) && <em>Optional</em>}</span><input value={values[field] || ''} placeholder={fieldPlaceholders[field]} onChange={(event) => update(field, event.target.value)} /></label>)}
     </fieldset>
     {isWordBank && <p className="field-help">Enter a home language for translations, or leave it blank for a column families can complete.</p>}
+    {(strategy.slug === 'support-speaking' || strategy.slug === 'scaffold-writing') && <p className="field-help">Leave the goal blank to request an inferred goal from your lesson material. The AI should label its suggestion and ask if more context is needed.</p>}
+    <details className="word-builder-advanced"><summary>More lesson context <span>Optional</span></summary>
+      <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
+      <p className="word-builder-note">The learning objective is not saved in this browser.</p>
+    </details>
     {isAdaptText && <section className="word-builder" aria-labelledby="adapt-builder-title">
       <h3 className="builder-section-title" id="adapt-builder-title">Your text</h3>
       <p>After pasting the prompt into your AI tool, add your lesson text in the clearly marked area at the very top. The AI will return the adapted reading first, followed by supports and teacher notes.</p>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
-        <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.ADAPT_OBJECTIVE || ''} onChange={event => update('ADAPT_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
-        <label className="word-builder-label">What you notice about your learners <span>Optional</span><textarea rows={3} value={values.ADAPT_OBSERVATIONS || ''} onChange={event => update('ADAPT_OBSERVATIONS', event.target.value)} placeholder="e.g., They can explain ideas orally but need help following long sentences." /></label>
         <label className="word-builder-label">Amount of language support <span>Optional</span><select value={values.ADAPT_SUPPORT || ''} onChange={event => update('ADAPT_SUPPORT', event.target.value)}><option value="">Let the AI suggest support</option><option value="light">Light support</option><option value="moderate">Moderate support</option><option value="substantial">Substantial support</option></select></label>
-        <p className="word-builder-note">The objective and observations are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
       </details>
     </section>}
     {isWordBank && <section className="word-builder" aria-labelledby="word-builder-title">
@@ -91,7 +96,6 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <label className="word-builder-label">Lesson title <span>Optional</span><input value={values.LESSON_TITLE || ''} onChange={event => update('LESSON_TITLE', event.target.value)} placeholder="e.g., Weathering and erosion" /></label>
       <label className="word-builder-label">Number of words<select value={values.WORD_BANK_COUNT || '10'} onChange={event => update('WORD_BANK_COUNT', event.target.value)}>{wordBankCountOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
-        <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
         <label className="word-builder-label">Words to consider <span>Optional</span><input value={values.KEY_TERMS || ''} onChange={event => update('KEY_TERMS', event.target.value)} placeholder="e.g., weathering, erosion" /></label>
         <label className="word-builder-label">Preferred output<select value={values.WORD_BANK_FORMAT || 'both'} onChange={event => update('WORD_BANK_FORMAT', event.target.value)}><option value="both">Printable PDF + editable Word document, if supported</option><option value="print">Printable PDF, if supported</option><option value="editable">Editable Word document, if supported</option><option value="content">Table in the response only</option></select></label>
         <p className="word-builder-note">Lesson title, objective, and suggested words are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
@@ -115,7 +119,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <p>Use your device’s Copy command, or press Ctrl+C (Windows) or Command+C (Mac).</p>
     </div>}
     <details className="prompt-preview"><summary>Preview the full prompt</summary><pre className="prompt-text" tabIndex={0} aria-label="Personalized prompt" aria-describedby="placeholder-help">{prompt}</pre></details>
-    <details className="prompt-notes"><summary>Privacy and home-language guidance</summary><p className="context-note"><Icon name="Check" size={15} /> Your choices are saved only in this browser tab for this session. This site does not collect or save lesson text.</p>
+    <details className="prompt-notes"><summary>Privacy and home-language guidance</summary><p className="context-note"><Icon name="Check" size={15} /> Grade, subject, language, and support choices are saved only in this browser tab for this session. Lesson-specific details and learner observations are not saved. This site does not collect lesson text.</p>
     <p className="prompt-language-bridge"><Icon name="Languages" size={16} /> Home language(s) are optional and can provide a bridge to meaning while keeping English academic terms visible.</p></details>
   </section>
 }

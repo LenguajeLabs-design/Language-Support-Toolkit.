@@ -35,11 +35,16 @@ Use a local preview for site changes and user review. Publish only when explicit
 
 ## Editing content
 
+Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Shared personalization and the specialized text-adaptation and word-bank builders live in [`src/lib/prompt.ts`](src/lib/prompt.ts). Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
+
+Every strategy accepts an optional learning objective and classroom observations, with or without a reported proficiency level. Blank speaking and writing goals request a clearly labeled inference from the lesson material rather than substituting a preset goal.
+
+Only grade, subject, language, proficiency, and resource preferences are saved for the browser-tab session. Lesson-specific text, including goals, objectives, and learner observations, is excluded when saving and restoring preferences.
+
 Build a Visual Word Bank defaults to about 10 words in a four-column table: vocabulary, kid-friendly meaning, image, and home-language translation. A blank language produces an empty column for families to complete; named languages request separate translated versions. The prompt requests approximately five words per A4 page, embedded images, and PDF plus editable Word output when supported, without verification labels, review pages, or a practice companion.
 
 The word-bank prompt explicitly requests native image generation at the best supported quality, individual images that illustrate each definition, and inspection and replacement of weak visuals when those tools are available. It keeps the table text editable and uses suitable licensed images as a fallback when generation is unavailable. These instructions request capabilities in the teacher's chosen AI tool; the toolkit itself does not generate or inspect images.
 
-Strategy text, examples, prompts, and links live in [`src/data/strategies.ts`](src/data/strategies.ts). Components stay intentionally small and reusable in `src/components/`, so an educator can update the instructional content without redesigning pages.
 
 ## Links and static hosting
 
@@ -49,7 +54,7 @@ GitHub Pages is the primary address above. The existing Sites publication remain
 
 ## GitHub Pages
 
-The included workflow at `.github/workflows/deploy.yml` builds and deploys the `dist` folder whenever `main` changes.
+The workflow at `.github/workflows/deploy.yml` runs the prompt tests and production build for pull requests to `main`. Pushes to `main` deploy the tested `dist` folder to GitHub Pages; pull requests do not deploy.
 
 1. Create a GitHub repository and push this project to its `main` branch.
 2. In **Settings → Pages**, set the source to **GitHub Actions**.
