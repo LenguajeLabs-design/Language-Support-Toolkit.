@@ -47,7 +47,7 @@ export const strategies: Strategy[] = [
     summary: 'Create a clear reference with key words, kid-friendly meanings, images, and home-language translations.',
     why: 'A useful word bank is more than a displayed list. It helps students hear a word, see it in context, connect it to meaning and an image, then use it in conversation and writing.',
     uses: ['When new unit vocabulary is central to the lesson goal', 'Before reading, writing, or discussing a content-rich text', 'When students need to use precise terms—not only recognize them', 'When you can select a small set of high-value words rather than every unfamiliar word'],
-    steps: ['Choose about 10 essential words that connect to the lesson or unit.', 'Pair each word with a short, kid-friendly meaning and a clear image.', 'Add a home-language translation column, or leave it blank for families to complete.', 'Create a readable reference with about five words per page.'],
+    steps: ['Choose about 8–10 essential words that connect to the lesson or unit.', 'Pair each word with a short, kid-friendly meaning and a clear image.', 'Add a home-language translation column, or leave it blank for families to complete.', 'Create a readable reference with about five words per page.'],
     example: {
       context: 'Grade 4 science · landforms and erosion', originalLabel: 'Original classroom text',
       original: 'Wind and water break down rocks over time. This process is called weathering. The broken pieces of rock, called sediment, are moved by water, wind or ice. This movement is called erosion.',
@@ -118,6 +118,23 @@ export const strategies: Strategy[] = [
     prompt: `Analyze the language work in the following {{GRADE}} {{SUBJECT}} lesson.\n\nPrepare a focused teacher planning brief before creating or simplifying any materials. Preserve the content goal and students’ responsibility for thinking.\n\nLesson:\n[PASTE LESSON HERE]`,
     tips: ['Begin with the message learners must understand or communicate, not a list of difficult words.', 'Task wording is evidence of a demand, not proof that a learner will struggle with it.', 'Use observations alongside reported proficiency. Keep language access, task clarity and content understanding distinct.', 'Try one focused move, check what students understand and communicate, then retain, change or fade the support.'],
     related: ['adapt-a-text', 'build-a-word-bank', 'support-speaking'],
+  },
+  {
+    slug: 'create-lesson-slides', title: 'Create Lesson Slides', shortTitle: 'Lesson slides', icon: 'Presentation', accent: 'blue',
+    summary: 'Plan clear, age-appropriate slides with learning targets, meaningful visuals, and language supports.',
+    why: 'A presentation can make the content easier to follow and give students useful language for participating. Start with what students should understand and communicate, then choose visuals, examples and practice that serve those goals.',
+    uses: ['When turning an existing lesson or source material into a presentation', 'When students need to see an idea modeled before trying it', 'When key vocabulary needs a clear visual explanation', 'When a presentation needs more opportunities for students to talk, practice and show understanding'],
+    steps: ['Identify the content goal and the language students will use to show understanding.', 'Choose an approximate length and the supports that fit this lesson.', 'Copy the prompt into your presentation tool and add the lesson material.', 'Review the content, visuals and translations; check that the final task matches the goals.'],
+    example: {
+      context: 'Grade 4 science · rivers and erosion', originalLabel: 'Lesson material',
+      original: 'Rivers change the land by moving rock and soil. Students will explain how moving water changes a riverbank and connect a cause to its effect.',
+      improvedLabel: 'A target, vocabulary support and a check',
+      improved: 'Learning target: I can explain how rivers change the land. Language target: I can connect a cause and a change using because. Vocabulary: erosion, with a clear image, student-friendly meaning and example. Check: use a river image to explain a change and its cause.',
+      changes: ['Connects the opening target with the final explanation', 'Uses a dedicated vocabulary layout only where it helps', 'Keeps student-facing text concise and teaching guidance in notes'],
+    },
+    prompt: `Create a clear, professional, age-appropriate lesson presentation for {{GRADE}} {{SUBJECT}} students developing English around WIDA levels {{LEVEL}}. Help students understand the content and use the language needed to participate.\n\nLesson material:\n[PASTE LESSON MATERIAL HERE]`,
+    tips: ['Treat the suggested sequence and vocabulary layout as starting points you can adjust.', 'Use readable text, accurate images and purposeful space. Match the age group as well as the language needs.', 'Select essential vocabulary rather than giving every unfamiliar word its own slide.', 'Check translations in context and keep them readable when projected.', 'Look for what students understand and communicate in the final task, then adjust the next lesson.'],
+    related: ['build-a-word-bank', 'translate-a-visual', 'support-speaking'],
   },
 ]
 

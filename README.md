@@ -9,7 +9,7 @@ The site is intentionally a teaching resource—not an AI chatbot. It helps teac
 ## Included
 
 - Responsive homepage with the NOTICE → SCAFFOLD → CREATE → REVIEW framework
-- Six dedicated strategy routes: Adapt a Text, Build a Word Bank, Translate a Visual, Support Speaking, Scaffold Writing, and Find Language Demands
+- Seven dedicated strategy routes: Adapt a Text, Build a Word Bank, Translate a Visual, Support Speaking, Scaffold Writing, Find Language Demands, and Create Lesson Slides
 - Before-and-after classroom examples, including a Grade 4 landforms word bank
 - Strategy pages open directly on customizable AI prompts, with examples, rationale, and teaching tips alongside
 - Copy before an optional full-prompt preview, with teacher-review reminders and a manual-copy fallback
@@ -47,7 +47,7 @@ Find Language Demands asks for up to three evidence-linked priorities and one fi
 
 Only grade, subject, language, proficiency, and resource preferences are saved for the browser-tab session. Lesson-specific text, including goals, objectives, and learner observations, is excluded when saving and restoring preferences.
 
-Build a Visual Word Bank defaults to about 10 words in a four-column table: vocabulary, kid-friendly meaning, image, and home-language translation. A blank language produces an empty column for families to complete; named languages request separate translated versions. The prompt requests approximately five words per A4 page, embedded images, and PDF plus editable Word output when supported, without verification labels, review pages, or a practice companion.
+Build a Visual Word Bank defaults to about 8–10 words in a four-column table: vocabulary, kid-friendly meaning, image, and home-language translation. A blank language produces an empty column for families to complete; named languages request separate translated versions. An optional topic adds context and is not saved. The prompt requests approximately five words per A4 page, embedded images, and PDF plus editable Word output when supported, without verification labels, review pages, or a practice companion.
 
 The word-bank prompt explicitly requests native image generation at the best supported quality, individual images that illustrate each definition, and inspection and replacement of weak visuals when those tools are available. It keeps the table text editable and uses suitable licensed images as a fallback when generation is unavailable. These instructions request capabilities in the teacher's chosen AI tool; the toolkit itself does not generate or inspect images.
 
@@ -67,3 +67,11 @@ The workflow at `.github/workflows/deploy.yml` runs the prompt tests and product
 3. Push to `main`, then use the workflow’s deployment URL.
 
 No accounts, file uploads, AI integrations, analytics, or student data collection are included.
+
+## Consolidated word bank and lesson slides
+
+Create Lesson Slides adds content and language objectives, deck length, visual style, and optional vocabulary visuals, modeled examples, sentence starters and partner talk. Its editable presentation brief requests the best available image generation or full-resolution image search, with factual, licensing and capability checks. Three illustrative sample slides connect a learning target, vocabulary and a final explanation. The seven-card library uses four cards above three centered cards on wide screens and fewer columns on smaller screens.
+
+The word bank combines the newer textbook brief, optional topic and centered image placement with the published image-generation, print-resolution, licensing and fallback instructions. Photos may crop around a clear subject; diagrams retain their labels and relationships. Student text remains editable.
+
+The toolkit only creates prompts; teachers use their chosen AI or presentation tool to generate resources. Slide topics, objectives, words and choices remain outside browser preferences. Phase 5 changes to Translate a Visual are not included.

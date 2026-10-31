@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Strategy } from '../data/strategies'
 import { Icon } from './Icon'
 import { ProficiencyGuide } from './ProficiencyGuide'
+import { LessonSlidesFields } from './LessonSlidesFields'
 import { buildStrategyPrompt, defaultValues, getSessionPreferences, speakingTimingOptions, wordBankCountOptions, writingSupportOptions, type Values } from '../lib/prompt'
 
 const promptContextStorageKey = 'language-support-toolkit-prompt-context'
@@ -33,7 +34,7 @@ const fieldPlaceholders: Record<string, string> = {
 
 export function PromptBox({ strategy }: { strategy: Strategy }) {
   const defaultDomain = strategy.slug === 'support-speaking' ? 'Speaking' : strategy.slug === 'scaffold-writing' ? 'Writing' : 'Reading'
-  const [values, setValues] = useState<Values>(() => ({ ...getSavedValues(), LANGUAGE_DOMAIN: strategy.slug === 'find-language-demands' ? '' : defaultDomain }))
+  const [values, setValues] = useState<Values>(() => ({ ...getSavedValues(), LANGUAGE_DOMAIN: ['find-language-demands', 'create-lesson-slides'].includes(strategy.slug) ? '' : defaultDomain }))
   const [copyState, setCopyState] = useState<'idle' | 'copying' | 'success' | 'error'>('idle')
   const manualPrompt = useRef<HTMLTextAreaElement>(null)
   const promptVersion = useRef(0)
@@ -48,6 +49,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   const isWriting = strategy.slug === 'scaffold-writing'
   const isSpeaking = strategy.slug === 'support-speaking'
   const isDemands = strategy.slug === 'find-language-demands'
+  const isSlides = strategy.slug === 'create-lesson-slides'
   const prompt = useMemo(() => buildStrategyPrompt(strategy, values), [strategy, values])
   useEffect(() => {
     try {
@@ -73,7 +75,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
   }
   return <section className="prompt-panel" aria-labelledby="prompt-title">
     <div className="prompt-heading"><span className="mini-icon"><Icon name="Sparkles" size={20} /></span><div><p className="eyebrow">Copy-ready prompt</p><h2 id="prompt-title">Make this prompt yours</h2></div></div>
-    <p className="prompt-intro">Adjust the details, then copy your prompt into your school-approved AI tool to {isDemands ? 'identify the priorities and a useful first move' : 'create the materials'}.</p>
+    <p className="prompt-intro">{isSlides ? 'Set your goals and choose useful supports. Then copy your prompt into Canva or your school-approved presentation tool and add your lesson material.' : <>Adjust the details, then copy your prompt into your school-approved AI tool to {isDemands ? 'identify the priorities and a useful first move' : 'create the materials'}.</>}</p>
     <h3 className="builder-section-title">Your lesson</h3>
     <fieldset className="prompt-controls">
       <legend className="sr-only">Customize this prompt</legend>
@@ -81,12 +83,12 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     </fieldset>
     {isWordBank && <p className="field-help">Enter a home language for translations, or leave it blank for a column families can complete.</p>}
     {(strategy.slug === 'support-speaking' || strategy.slug === 'scaffold-writing') && <p className="field-help">Leave the goal blank to request an inferred goal from your lesson material. The AI should label its suggestion and ask if more context is needed.</p>}
-    <details className="word-builder-advanced"><summary>More lesson context <span>Optional</span></summary>
+    {isSlides ? <LessonSlidesFields values={values} update={update} /> : <details className="word-builder-advanced"><summary>More lesson context <span>Optional</span></summary>
       <label className="word-builder-label">Learning objective <span>Optional</span><textarea rows={3} value={values.LEARNING_OBJECTIVE || ''} onChange={event => update('LEARNING_OBJECTIVE', event.target.value)} placeholder="What should students understand or be able to do?" /></label>
       {isDemands && <label className="word-builder-label">How will students show learning? <span>Optional</span><textarea id="demands-response" rows={2} value={values.DEMANDS_RESPONSE || ''} onChange={event => update('DEMANDS_RESPONSE', event.target.value)} placeholder="e.g., compare two graphs aloud, then write a justification using evidence" /></label>}
       {isDemands && <p className="field-help">Leave blank to use the response required by the lesson. Any inferred response should be marked provisional. Add the task and relevant material after pasting into your AI tool.</p>}
       <p className="word-builder-note">{isDemands ? 'Lesson-specific details are' : 'The learning objective is'} not saved in this browser.</p>
-    </details>
+    </details>}
     {isSpeaking && <section className="word-builder" aria-labelledby="speaking-builder-title">
       <h3 className="builder-section-title" id="speaking-builder-title">Your conversation</h3>
       <p>Prepare a discussion card students can use with a partner. Add your lesson material after pasting the prompt into your AI tool.</p>
@@ -122,14 +124,15 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
     </section>}
     {isWordBank && <section className="word-builder" aria-labelledby="word-builder-title">
       <h3 className="builder-section-title" id="word-builder-title">Your word bank</h3>
-      <p>About 10 words with kid-friendly meanings, clear images, and a home-language column. The AI tool you use will create the resource.</p>
+      <p>A premium textbook-style bank with 8–10 words, kid-friendly meanings, teaching images, and a home-language column.</p>
       <p className="word-builder-note">The prompt asks your AI tool to use its best available image generator for polished educational visuals.</p>
       <label className="word-builder-label">Lesson title <span>Optional</span><input value={values.LESSON_TITLE || ''} onChange={event => update('LESSON_TITLE', event.target.value)} placeholder="e.g., Weathering and erosion" /></label>
-      <label className="word-builder-label">Number of words<select value={values.WORD_BANK_COUNT || '10'} onChange={event => update('WORD_BANK_COUNT', event.target.value)}>{wordBankCountOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+      <label className="word-builder-label">Number of words<select value={values.WORD_BANK_COUNT || '8–10'} onChange={event => update('WORD_BANK_COUNT', event.target.value)}>{wordBankCountOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
+        <label className="word-builder-label">Topic <span>Optional</span><input value={values.WORD_BANK_TOPIC || ''} onChange={event => update('WORD_BANK_TOPIC', event.target.value)} placeholder="e.g., Earthquakes" /></label>
         <label className="word-builder-label">Words to consider <span>Optional</span><input value={values.KEY_TERMS || ''} onChange={event => update('KEY_TERMS', event.target.value)} placeholder="e.g., weathering, erosion" /></label>
         <label className="word-builder-label">Preferred output<select value={values.WORD_BANK_FORMAT || 'both'} onChange={event => update('WORD_BANK_FORMAT', event.target.value)}><option value="both">Printable PDF + editable Word document, if supported</option><option value="print">Printable PDF, if supported</option><option value="editable">Editable Word document, if supported</option><option value="content">Table in the response only</option></select></label>
-        <p className="word-builder-note">Lesson title, objective, and suggested words are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
+        <p className="word-builder-note">Topic, lesson title, objective, and suggested words are not saved in this browser. Avoid student-identifying details when using your AI tool.</p>
       </details>
     </section>}
     <details className="learner-options">

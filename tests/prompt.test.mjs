@@ -167,9 +167,9 @@ test('restoring preferences migrates the legacy language and ignores invalid val
 
 const wordBankTemplate = strategies.find(item => item.slug === 'build-a-word-bank').prompt
 
-test('word bank defaults to about 10 words in a four-column handout without extra resources', () => {
+test('word bank defaults to about 8–10 words in a four-column handout without extra resources', () => {
   const prompt = buildWordBankPrompt(wordBankTemplate, defaultValues)
-  assert.match(prompt, /Select about 10 essential vocabulary words/)
+  assert.match(prompt, /Select about 8–10 essential vocabulary words/)
   assert.match(prompt, /table with four columns/)
   for (const value of ['1. Vocabulary:', '2. Kid-friendly meaning:', '3. Image:', '4. Home-language translation:', 'approximately five words per page', 'Keep each vocabulary row together', 'editable Word document', 'A4 print-ready PDF', 'images embedded in both']) assert.ok(prompt.includes(value), value)
   assert.match(prompt, /Do not assign or assume a WIDA level/)
@@ -228,12 +228,26 @@ test('word bank language changes replace translations and clearing restores a bl
 test('word bank respects supported counts and replaces stale or invalid saved counts', () => {
   for (const count of ['5', '8', '12']) assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: count }).includes(`Select ${count} essential vocabulary words`))
   for (const count of ['4–6', 'invalid', '', '1000']) {
-    assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: count }).includes('Select about 10 essential vocabulary words'))
+    assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: count }).includes('Select about 8–10 essential vocabulary words'))
     const restored = { ...defaultValues, ...getSessionPreferences({ WORD_BANK_COUNT: count, WORD_BANK_RESOURCE: 'practice', WORD_BANK_TRANSLATIONS: 'no' }) }
-    assert.equal(restored.WORD_BANK_COUNT, '10')
+    assert.equal(restored.WORD_BANK_COUNT, '8–10')
     assert.ok(!('WORD_BANK_RESOURCE' in restored))
     assert.ok(!('WORD_BANK_TRANSLATIONS' in restored))
   }
   assert.equal(getWordBankCount('8'), '8')
   assert.equal(getSessionPreferences({ WORD_BANK_COUNT: '8' }).WORD_BANK_COUNT, '8')
+  assert.equal(getWordBankCount('10'), '10')
+  assert.ok(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_COUNT: '10' }).includes('Select about 10 essential vocabulary words'))
+})
+
+test('word-bank refinements keep print-quality safeguards and complete diagrams', () => {
+  const prompt = buildWordBankPrompt(wordBankTemplate, { ...defaultValues, GRADE: 'Grade 4', WORD_BANK_TOPIC: '  Earthquakes  ' })
+  for (const text of ['Topic: Earthquakes', 'Premium textbook style appropriate for Grade 4', 'Every image must teach the exact meaning', 'highest supported quality and detail settings', 'at least 1024 pixels', 'IMAGE PLACEMENT', 'Center every image horizontally and vertically', 'never crop labels, arrows, or relationships', 'centered inline images', 'Regenerate or replace images', 'Do not invent images, sources or licences']) assert.ok(prompt.includes(text), text)
+  assert.doesNotMatch(buildWordBankPrompt(wordBankTemplate, { ...defaultValues, WORD_BANK_TOPIC: '' }), /Topic: Earthquakes/)
+})
+
+test('a word-bank topic stays out of saved preferences and other strategies', () => {
+  const values = { ...defaultValues, WORD_BANK_TOPIC: 'Private unit topic' }
+  assert.equal(getSessionPreferences(values).WORD_BANK_TOPIC, undefined)
+  for (const strategy of strategies.filter(strategy => strategy.slug !== 'build-a-word-bank')) assert.equal(buildStrategyPrompt(strategy, values), buildStrategyPrompt(strategy, defaultValues), strategy.slug)
 })
