@@ -5,6 +5,8 @@ import { PromptBox } from './components/PromptBox'
 import { WritingExample } from './components/WritingExample'
 import { SpeakingExample } from './components/SpeakingExample'
 import { LanguageDemandsExample } from './components/LanguageDemandsExample'
+import { LessonSlidesExample } from './components/LessonSlidesExample'
+import { VisualTranslationExample } from './components/VisualTranslationExample'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
 import volcanoSupport from './assets/learning/volcano-support.png'
@@ -12,7 +14,6 @@ import weatheringCue from './assets/learning/weathering-cue.png'
 import erosionCue from './assets/learning/erosion-cue.png'
 import sedimentCue from './assets/learning/sediment-cue.png'
 import surfaceCue from './assets/learning/surface-cue.png'
-import imageTranslationWorkflow from './assets/learning/image-translation-workflow.png'
 import languageToolkitMark from './assets/brand/language-toolkit-mark.png'
 
 function routeFromHash() {
@@ -57,6 +58,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     ['04', 'Conversation', 'A discussion or oral response', 'Prepare language for meaningful participation.', 'support-speaking'],
     ['05', 'Writing', 'A paragraph or extended task', 'Support structure and reasoning in writing.', 'scaffold-writing'],
     ['06', 'Planning', 'A lesson I am still planning', 'Notice the language work before choosing a scaffold.', 'find-language-demands'],
+    ['07', 'Lesson slides', 'A lesson to present', 'Plan clear slides with goals, visuals and language support.', 'create-lesson-slides'],
   ] as const
   return <>
     <section className="home-hero">
@@ -113,7 +115,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
 function Strategies({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [query, setQuery] = useState('')
   const shown = strategies.filter((strategy) => `${strategy.title} ${strategy.why} ${strategy.uses.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
-  return <section className="listing-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span>Strategies</div><div className="listing-heading"><div><p className="eyebrow">Strategy library</p><h1>Choose a support for your lesson.</h1><p>Choose a support, customize your prompt, and copy it into your AI tool. Examples and teaching guidance are there whenever you need them.</p></div><label className="search-field"><Icon name="Search" size={18} /><span className="sr-only">Search strategies</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search strategies" /></label></div><div className="strategy-grid">{shown.map((strategy) => <StrategyCard key={strategy.slug} strategy={strategy} onNavigate={onNavigate} />)}</div>{shown.length === 0 && <div className="empty-state" role="status"><p>No supports match “{query}”. Try “text,” “speaking,” or “writing.”</p><button className="secondary-button" onClick={() => setQuery('')}>Show all six supports</button></div>}</div></section>
+  return <section className="listing-page"><div className="container"><div className="breadcrumb"><a href="#/" onClick={(event) => { event.preventDefault(); onNavigate('/') }}>Home</a><span>›</span>Strategies</div><div className="listing-heading"><div><p className="eyebrow">Strategy library</p><h1>Choose a support for your lesson.</h1><p>Choose a support, customize your prompt, and copy it into your AI tool. Examples and teaching guidance are there whenever you need them.</p></div><label className="search-field"><Icon name="Search" size={18} /><span className="sr-only">Search strategies</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search strategies" /></label></div><div className="strategy-grid">{shown.map((strategy) => <StrategyCard key={strategy.slug} strategy={strategy} onNavigate={onNavigate} />)}</div>{shown.length === 0 && <div className="empty-state" role="status"><p>No supports match “{query}”. Try “text,” “speaking,” or “writing.”</p><button className="secondary-button" onClick={() => setQuery('')}>Show all supports</button></div>}</div></section>
 }
 
 function StrategyPage({ slug, onNavigate }: { slug: string; onNavigate: (path: string) => void }) {
@@ -157,7 +159,7 @@ function VisualWordBankExample() {
     <div className="example-heading"><div><p className="eyebrow">Grade 4 science · landforms and erosion</p><h2>A clear reference for school and home.</h2><p>Words, kid-friendly meanings, useful images, and space for a home language.</p></div><span className="example-tag">Before → after</span></div>
     <div className="visual-before"><div><span className="visual-kicker">Before · original lesson text</span><p>Wind and water break down rocks over time. This process is called weathering. The broken pieces of rock, called sediment, are moved by water, wind or ice. This movement is called erosion.</p></div><p className="visual-demand"><Icon name="Lightbulb" size={19} /><span><strong>Language to notice</strong> Students need to distinguish how rocks break down from how the pieces move.</span></p></div>
     <div className="visual-transition"><Icon name="ArrowRight" size={20} /><span>Make meaning visible</span></div>
-    <section className="visual-after" aria-labelledby="visual-example-title"><header><span className="visual-kicker">After · visual word bank</span><h3 id="visual-example-title">Landforms and erosion</h3><p>Four sample rows. A full bank usually includes about 10 words.</p></header><div className="word-bank-table-scroll" role="region" aria-label="Four-column word bank example; scroll horizontally on a small screen" tabIndex={0}><table className="word-bank-table"><caption className="sr-only">Landforms and erosion vocabulary with kid-friendly meanings, images, and a blank home-language column</caption><thead><tr><th scope="col">Vocabulary</th><th scope="col">Kid-friendly meaning</th><th scope="col">Image</th><th scope="col">Home language</th></tr></thead><tbody>{words.map(({ word, meaning, image, alt }) => <tr key={word}><th scope="row">{word}</th><td>{meaning}</td><td><img src={image} alt={alt} /></td><td><span className="word-bank-translation-line" aria-label="Space for a home-language translation" /></td></tr>)}</tbody></table></div></section>
+    <section className="visual-after" aria-labelledby="visual-example-title"><header><span className="visual-kicker">After · visual word bank</span><h3 id="visual-example-title">Landforms and erosion</h3><p>Four sample rows. A full bank usually includes about 8–10 words.</p></header><div className="word-bank-table-scroll" role="region" aria-label="Four-column word bank example; scroll horizontally on a small screen" tabIndex={0}><table className="word-bank-table"><caption className="sr-only">Landforms and erosion vocabulary with kid-friendly meanings, images, and a blank home-language column</caption><thead><tr><th scope="col">Vocabulary</th><th scope="col">Kid-friendly meaning</th><th scope="col">Image</th><th scope="col">Home language</th></tr></thead><tbody>{words.map(({ word, meaning, image, alt }) => <tr key={word}><th scope="row">{word}</th><td>{meaning}</td><td><img src={image} alt={alt} /></td><td><span className="word-bank-translation-line" aria-label="Space for a home-language translation" /></td></tr>)}</tbody></table></div></section>
     <section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>Why this helps</b></div><ul><li><Icon name="Check" size={16} />Pairs each key term with a short meaning and a relevant image.</li><li><Icon name="Check" size={16} />Leaves room for a home-language connection.</li><li><Icon name="Check" size={16} />Gives students and families an uncluttered reference to revisit.</li></ul></section>
   </div>
 }
@@ -173,19 +175,6 @@ function AdaptedTextExample() {
     <p className="adapted-text-intro">Read one idea at a time.</p>
     <div className="adapted-text-chunks">{chunks.map(([heading, text], index) => <section key={heading}><span>{index + 1}</span><div><h3>{heading}</h3><p>{text}</p></div></section>)}</div>
     <section className="adapted-text-terms" aria-labelledby="adapted-text-terms-title"><h3 id="adapted-text-terms-title">Key words to notice</h3><div>{terms.map((term) => <span key={term}>{term}</span>)}</div></section>
-  </div>
-}
-
-function VisualTranslationPlan() {
-  const supports = [
-    ['Keep English visible', 'Keep the original English labels in place.'],
-    ['Add a verified bridge', 'Add one home-language label beside each key term.'],
-    ['Show the sequence', 'Use arrows, then rehearse: “First… Then…”'],
-  ]
-  return <div className="visual-translation-plan">
-    <p className="visual-translation-intro">Use another language to connect to meaning—not to replace the English.</p>
-    <ol>{supports.map(([title, text], index) => <li key={title}><span>{index + 1}</span><div><strong>{title}</strong><p>{text}</p></div></li>)}</ol>
-    <section className="visual-translation-say" aria-labelledby="visual-translation-say-title"><Icon name="MessageCircle" size={16} /><div><h3 id="visual-translation-say-title">Say it in English</h3><p>“First, water ___. Then, it ___.”</p></div></section>
   </div>
 }
 
@@ -215,12 +204,13 @@ function WritingScaffold() {
 }
 
 function Example({ strategy }: { strategy: Strategy }) {
+  if (strategy.slug === 'translate-a-visual') return <VisualTranslationExample />
+  if (strategy.slug === 'create-lesson-slides') return <LessonSlidesExample />
   if (strategy.slug === 'scaffold-writing') return <WritingExample />
   if (strategy.slug === 'support-speaking') return <SpeakingExample />
   if (strategy.slug === 'find-language-demands') return <LanguageDemandsExample />
   if (strategy.slug === 'build-a-word-bank') return <VisualWordBankExample />
   const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
-    : strategy.example.type === 'visual' ? <VisualTranslationPlan />
         : strategy.example.type === 'writing' ? <WritingScaffold />
           : <p>{strategy.example.improved}</p>
   return <div className="strategy-content">
@@ -234,7 +224,6 @@ function Example({ strategy }: { strategy: Strategy }) {
         {strategy.slug === 'adapt-a-text' && <figure className="volcano-visual"><img src={volcanoSupport} alt="Cutaway illustration of an erupting volcano with magma, ash, and layers of rock" /><figcaption><Icon name="Eye" size={14} /><span><b>Teach with the visual:</b> point to magma, ash, and the Earth’s surface as students encounter the words.</span></figcaption></figure>}
       </article>
     </div>
-    {strategy.slug === 'translate-a-visual' && <section className="translation-workflow" aria-labelledby="translation-workflow-title"><figure><img src={imageTranslationWorkflow} alt="A visual moving from a photographed water-cycle diagram to a reviewed diagram with added language labels" /></figure><div><p className="eyebrow">A visual workflow</p><h3 id="translation-workflow-title">Translate the image—then teach from it.</h3><ol><li><span>1</span><p>Capture a non-identifying slide, chart, or diagram.</p></li><li><span>2</span><p>Use your school-approved image translation tool to create a draft.</p></li><li><span>3</span><p>Review academic terms, placement, and readability before students see it.</p></li></ol><p className="workflow-note"><Icon name="ShieldCheck" size={15} />Google Translate can be one option; follow your school’s privacy guidance and verify the wording.</p></div></section>}
     <section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section>
   </div>
 }
