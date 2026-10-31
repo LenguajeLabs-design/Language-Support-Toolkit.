@@ -213,8 +213,19 @@ export function buildLanguageDemandsPrompt(template: string, values: Values) {
   ].join('\n\n')
 }
 
+/** Personalize the image brief while keeping the target language explicit. */
+export function buildVisualTranslationPrompt(template: string, values: Values) {
+  const sourceInstructions = template.indexOf('\n\nUse the attached visual')
+  const context = buildPrompt(template.slice(0, sourceInstructions), { ...values, HOME_LANGUAGE: '' })
+  const language = values.HOME_LANGUAGE?.trim()
+    ? `Target language and script: ${values.HOME_LANGUAGE.trim()}`
+    : 'Target language and script: Not provided. Ask me which language and script to use before creating the bilingual version; do not choose one for me.'
+  return [context, language, template.slice(sourceInstructions).trim()].join('\n\n')
+}
+
 /** Keep the form and regression checks on the same strategy-specific path. */
 export function buildStrategyPrompt(strategy: { slug: string; prompt: string }, values: Values) {
+  if (strategy.slug === 'translate-a-visual') return buildVisualTranslationPrompt(strategy.prompt, values)
   if (strategy.slug === 'create-lesson-slides') return buildLessonSlidesPrompt(strategy.prompt, values)
   if (strategy.slug === 'adapt-a-text') return buildAdaptedTextPrompt(values)
   if (strategy.slug === 'build-a-word-bank') return buildWordBankPrompt(strategy.prompt, values)

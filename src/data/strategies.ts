@@ -61,16 +61,56 @@ export const strategies: Strategy[] = [
   },
   {
     slug: 'translate-a-visual', title: 'Translate a Visual', shortTitle: 'Translate', icon: 'Languages', accent: 'coral',
-    summary: 'Turn existing diagrams and slides into multilingual access points.',
+    summary: 'Create a polished bilingual version of a diagram, chart, or slide.',
     why: 'A visual can make an abstract idea easier to understand. A carefully reviewed home-language version can help students connect new English to knowledge they already have.',
     uses: ['When a diagram, chart, slide, or worksheet carries essential meaning', 'When students need to preview key ideas in a home language', 'When labels are more useful than translating a whole lesson', 'When you can review the translated terms before sharing them'],
-    steps: ['Open the existing slide, chart, or diagram and remove any student-identifying information.', 'Take a screenshot, then open your school-approved translation service.', 'Select image translation and choose the target language.', 'Check academic terminology, labels, and layout against your source before using it.'],
+    steps: ['Open the existing slide, chart, or diagram and remove any student-identifying information.', 'Choose the target language and script, then copy the customized prompt.', 'Paste it into your school-approved image-capable AI tool and attach the source visual there.', 'Check academic terminology, labels, and layout against your source before using it.'],
     example: {
-      context: 'Grade 5 geography · water cycle diagram', originalLabel: 'Original labels', original: 'evaporation · condensation · precipitation · collection\n\nWater changes to vapor. Water vapor cools and forms clouds. Water falls to Earth as rain or snow.',
-      improvedLabel: 'Reviewed multilingual visual', improved: 'Keep the original English labels visible. Add a verified home-language label beside each key term, plus arrows that show the sequence. Pair the diagram with oral rehearsal: “First, water ___. Then, it ___.”',
+      context: 'Grade 5 science · English + Spanish', originalLabel: 'Original English visual', original: 'evaporation · condensation · precipitation · collection\n\nWater changes to vapor. Water vapor cools and forms clouds. Water falls to Earth as rain or snow.',
+      improvedLabel: 'Bilingual visual', improved: 'Keep the English labels and source relationships visible. Add readable Spanish translations beside the original terms, or use a companion key when the visual needs more space.',
       changes: ['Keeps English visible for language development', 'Uses translation to connect—not replace—meaning', 'Checks subject-specific words and the visual layout'], type: 'visual',
     },
-    prompt: `I am preparing a visual for a {{GRADE}} {{SUBJECT}} lesson. Review the labels and short explanatory text below.\n\nCreate a bilingual support plan for students. If a home language is provided below, use it as an optional bridge to meaning. Keep the English academic terms visible. For each essential label, provide:\n1. A concise, teacher-verification translation field.\n2. A student-friendly English explanation.\n3. A recommendation for where the label should sit on the visual.\n4. One oral sentence frame that uses the English term.\n\nFlag words with more than one possible translation or terms that require subject-expert review. Do not assume automatic translation is accurate.\n\nVisual labels/text:\n[PASTE LABELS OR DESCRIPTION HERE]`,
+    prompt: `Create a professional bilingual classroom visual from the image I attach.
+
+CONTEXT
+Grade or learner age: {{GRADE}}
+Subject: {{SUBJECT}}
+
+Use the attached visual as the source for the content, labels, and relationships. If the image or target language is missing, ask for it before creating the bilingual version. If essential text is unreadable, ask for a clearer image or the exact wording rather than guessing.
+
+USE YOUR BEST AVAILABLE IMAGE TOOLS
+Check which image-generation and image-editing tools are available in this session. If available, explicitly invoke the most capable suitable tool and model at its highest supported quality setting and native resolution appropriate for printing or projection.
+
+Produce the finished visual. Do not stop at describing it, writing an image prompt, or promising to generate it.
+
+When the source is already clear and well designed, use image editing to add the second language while preserving the artwork and layout. When the source illustration needs improvement, recreate it as a polished textbook visual while preserving its instructional content and relationships. Preserve data-bearing charts, exact scientific models, mathematical geometry, formulas, and tables; use careful label editing or a companion key rather than generatively redrawing precise information.
+
+VISUAL QUALITY
+Aim for a carefully produced contemporary textbook: accurate, detailed imagery; clear composition; readable typography; purposeful arrows; generous spacing; and restrained color. Match the learners' age without making the resource childish.
+
+Use realistic scenes, explanatory illustrations, cross-sections, or diagrams according to what best teaches the concept. Keep visual detail relevant. Avoid generic clip art, decorative icons, crude sketches, blurry assets, and oversized text that overwhelms the illustration. Do not enlarge a low-resolution draft as a substitute for a sharp original.
+
+PRESERVE MEANING
+Retain essential English labels and all meaning-bearing arrows, sequences, axes, units, numerical values, symbols, legends, and connections. Keep labels attached to the correct feature. Do not invent missing data or add unsupported processes. Flag any substantive source error separately before changing it.
+
+ADD THE SECOND LANGUAGE
+Keep English academic labels prominent. Put accurate, context-appropriate translations directly beneath or beside them, slightly smaller but comfortably readable. Use the correct script, accents, and reading direction. Where there is no direct equivalent, use a brief natural explanation.
+
+Keep labels clear of important artwork and arrows. If the visual becomes crowded, use numbered callouts with a separate bilingual key. If several target languages are requested, create a separate version for each.
+
+Use editable text layers when supported; otherwise render crisp, correctly spelled labels. Keep verification labels, capability notices, teacher notes, and extra practice tasks out of the student visual.
+
+CHECK THE RESULT
+When image-inspection tools are available, inspect the finished image. Compare it with the source for content accuracy, arrow direction, label placement, retained data, spelling, translations, cropping, and readability at its intended size. Correct or regenerate weak parts using a precise follow-up edit that protects the rest of the visual. Do not claim to have inspected or verified anything you could not check.
+
+OUTPUT
+Show the finished bilingual visual first. Provide the full-resolution image or an actual download when supported. Put only consequential uncertainties or limitations afterward in a short teacher note.
+
+If image generation or editing is unavailable or cannot preserve the source reliably, provide a usable bilingual companion key with the original English labels, proposed translations, and identifiable locations on the visual. Explain the limitation briefly in chat. Name only tools, models, settings, files, or checks actually used or completed.
+
+OPTIONAL SOURCE TEXT
+If helpful, I can replace the placeholder below with exact labels or a description to accompany the attached image. An unfilled placeholder is not source material. If no image is attached, ask for it before making the bilingual visual; use supplied text only for a companion key and do not claim to have seen the image.
+[PASTE LABELS OR DESCRIPTION HERE]`,
     tips: ['Never upload identifiable student information to an unapproved service.', 'Verify academic terms with a trusted bilingual colleague, family resource, or glossary when possible.', 'Use a translated visual as a bridge back into English discussion.'],
     related: ['build-a-word-bank', 'support-speaking', 'adapt-a-text'],
   },

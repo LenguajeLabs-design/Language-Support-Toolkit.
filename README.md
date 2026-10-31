@@ -74,4 +74,10 @@ Create Lesson Slides adds content and language objectives, deck length, visual s
 
 The word bank combines the newer textbook brief, optional topic and centered image placement with the published image-generation, print-resolution, licensing and fallback instructions. Photos may crop around a clear subject; diagrams retain their labels and relationships. Student text remains editable.
 
-The toolkit only creates prompts; teachers use their chosen AI or presentation tool to generate resources. Slide topics, objectives, words and choices remain outside browser preferences. Phase 5 changes to Translate a Visual are not included.
+The toolkit only creates prompts; teachers use their chosen AI or presentation tool to generate resources. Slide topics, objectives, words and choices remain outside browser preferences. Phase 5 also updates Translate a Visual.
+
+## Phase 5 · Translate a Visual
+
+The visual prompt requests a finished bilingual image using the most capable suitable image tool at its highest supported quality. It preserves English labels and source relationships, protects precise charts and models, requests inspection when available, and falls back to a usable bilingual companion key. Grade, subject, target language/script and optional shared lesson context personalize the brief. A missing target language triggers a question in the chosen AI tool rather than an invented language.
+
+The example uses prepared English and Spanish water-cycle images with a companion key. Teachers attach their own source image in their approved AI tool; the toolkit has no upload or image-generation integration. The prompt can request capabilities but cannot enable unavailable tools or guarantee image or translation quality.

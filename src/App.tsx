@@ -6,6 +6,7 @@ import { WritingExample } from './components/WritingExample'
 import { SpeakingExample } from './components/SpeakingExample'
 import { LanguageDemandsExample } from './components/LanguageDemandsExample'
 import { LessonSlidesExample } from './components/LessonSlidesExample'
+import { VisualTranslationExample } from './components/VisualTranslationExample'
 import { StrategyCard } from './components/StrategyCard'
 import { getStrategy, languageUses, strategies, type Strategy } from './data/strategies'
 import volcanoSupport from './assets/learning/volcano-support.png'
@@ -13,7 +14,6 @@ import weatheringCue from './assets/learning/weathering-cue.png'
 import erosionCue from './assets/learning/erosion-cue.png'
 import sedimentCue from './assets/learning/sediment-cue.png'
 import surfaceCue from './assets/learning/surface-cue.png'
-import imageTranslationWorkflow from './assets/learning/image-translation-workflow.png'
 import languageToolkitMark from './assets/brand/language-toolkit-mark.png'
 
 function routeFromHash() {
@@ -178,19 +178,6 @@ function AdaptedTextExample() {
   </div>
 }
 
-function VisualTranslationPlan() {
-  const supports = [
-    ['Keep English visible', 'Keep the original English labels in place.'],
-    ['Add a verified bridge', 'Add one home-language label beside each key term.'],
-    ['Show the sequence', 'Use arrows, then rehearse: “First… Then…”'],
-  ]
-  return <div className="visual-translation-plan">
-    <p className="visual-translation-intro">Use another language to connect to meaning—not to replace the English.</p>
-    <ol>{supports.map(([title, text], index) => <li key={title}><span>{index + 1}</span><div><strong>{title}</strong><p>{text}</p></div></li>)}</ol>
-    <section className="visual-translation-say" aria-labelledby="visual-translation-say-title"><Icon name="MessageCircle" size={16} /><div><h3 id="visual-translation-say-title">Say it in English</h3><p>“First, water ___. Then, it ___.”</p></div></section>
-  </div>
-}
-
 function WritingScaffold() {
   const frames = [
     ['Claim', '“___ is the best insulator because ___.”'],
@@ -217,13 +204,13 @@ function WritingScaffold() {
 }
 
 function Example({ strategy }: { strategy: Strategy }) {
+  if (strategy.slug === 'translate-a-visual') return <VisualTranslationExample />
   if (strategy.slug === 'create-lesson-slides') return <LessonSlidesExample />
   if (strategy.slug === 'scaffold-writing') return <WritingExample />
   if (strategy.slug === 'support-speaking') return <SpeakingExample />
   if (strategy.slug === 'find-language-demands') return <LanguageDemandsExample />
   if (strategy.slug === 'build-a-word-bank') return <VisualWordBankExample />
   const improvedExample = strategy.slug === 'adapt-a-text' ? <AdaptedTextExample />
-    : strategy.example.type === 'visual' ? <VisualTranslationPlan />
         : strategy.example.type === 'writing' ? <WritingScaffold />
           : <p>{strategy.example.improved}</p>
   return <div className="strategy-content">
@@ -237,7 +224,6 @@ function Example({ strategy }: { strategy: Strategy }) {
         {strategy.slug === 'adapt-a-text' && <figure className="volcano-visual"><img src={volcanoSupport} alt="Cutaway illustration of an erupting volcano with magma, ash, and layers of rock" /><figcaption><Icon name="Eye" size={14} /><span><b>Teach with the visual:</b> point to magma, ash, and the Earth’s surface as students encounter the words.</span></figcaption></figure>}
       </article>
     </div>
-    {strategy.slug === 'translate-a-visual' && <section className="translation-workflow" aria-labelledby="translation-workflow-title"><figure><img src={imageTranslationWorkflow} alt="A visual moving from a photographed water-cycle diagram to a reviewed diagram with added language labels" /></figure><div><p className="eyebrow">A visual workflow</p><h3 id="translation-workflow-title">Translate the image—then teach from it.</h3><ol><li><span>1</span><p>Capture a non-identifying slide, chart, or diagram.</p></li><li><span>2</span><p>Use your school-approved image translation tool to create a draft.</p></li><li><span>3</span><p>Review academic terms, placement, and readability before students see it.</p></li></ol><p className="workflow-note"><Icon name="ShieldCheck" size={15} />Google Translate can be one option; follow your school’s privacy guidance and verify the wording.</p></div></section>}
     <section className="change-card"><div><Icon name="Lightbulb" size={21} /><b>What changed—and why</b></div><ul>{strategy.example.changes.map((change) => <li key={change}><Icon name="Check" size={16} />{change}</li>)}</ul></section>
   </div>
 }
