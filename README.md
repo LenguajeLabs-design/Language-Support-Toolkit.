@@ -1,6 +1,8 @@
 # Language Support Toolkit
 
-**Live toolkit:** [Language Support Toolkit](https://lenguajelabs-design.github.io/Language-Support-Toolkit./). Use this address in workshop materials and shared links.
+**Preferred public address (pending DNS and HTTPS verification):** [Language Support Toolkit](https://www.languagesupporttoolkit.app/).
+
+**Current address during migration:** [GitHub Pages](https://lenguajelabs-design.github.io/Language-Support-Toolkit./). Continue using this address until the [custom-domain migration checks](docs/custom-domain-migration.md) pass.
 
 A lightweight companion website for **Every Lesson Is a Language Lesson**, a November 2026 professional-development workshop for teachers working with multilingual learners.
 
@@ -56,7 +58,7 @@ The word-bank prompt explicitly requests native image generation at the best sup
 
 The site uses hash-based routes (for example `/#/strategy/build-a-word-bank`). This keeps individual strategy links working on static hosts—including GitHub Pages—without server-side route rewrites. Relative build asset paths let the same `dist` output work at a domain root or the GitHub Pages project path. Keep Vite's `base` set to `./` when publishing to either host.
 
-GitHub Pages is the primary address above. The existing Sites publication remains a working copy of the toolkit. Its `.openai/hosting.json` retains the existing Site identity. The service worker checks the network first for page navigation so returning visitors receive current releases, with an offline fallback when available.
+GitHub Pages hosts the preferred public address above once the domain migration is verified. The existing Sites publication remains a working copy of the toolkit. Its `.openai/hosting.json` retains the existing Site identity. The service worker checks the network first for page navigation so returning visitors receive current releases, with an offline fallback when available.
 
 ## GitHub Pages
 
@@ -65,6 +67,8 @@ The workflow at `.github/workflows/deploy.yml` runs the prompt tests and product
 1. Create a GitHub repository and push this project to its `main` branch.
 2. In **Settings → Pages**, set the source to **GitHub Actions**.
 3. Push to `main`, then use the workflow’s deployment URL.
+
+For `www.languagesupporttoolkit.app`, follow the [custom-domain migration guide](docs/custom-domain-migration.md). Keep the Actions deployment workflow and relative Vite base; configure the domain in repository Pages settings, without adding a `CNAME` file.
 
 No accounts, file uploads, AI integrations, analytics, or student data collection are included.
 
