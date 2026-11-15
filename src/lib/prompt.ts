@@ -1,7 +1,7 @@
 export type Values = Record<string, string>
 
 export const defaultValues: Values = {
-  GRADE: 'Grade 6', LEVEL: '', SUBJECT: 'science', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_COUNT: '8–10', WORD_BANK_FORMAT: 'both', WORD_BANK_TOPIC: '', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
+  GRADE: '', LEVEL: '', SUBJECT: '', HOME_LANGUAGE: '', SPEAKING_GOAL: '', WRITING_GOAL: '', PROFICIENCY_OBSERVATION: '', OTHER_FRAMEWORK: '', LANGUAGE_DOMAIN: '', WORD_BANK_COUNT: '8–10', WORD_BANK_FORMAT: 'both', WORD_BANK_TOPIC: '', LESSON_TITLE: '', LEARNING_OBJECTIVE: '', KEY_TERMS: '',
   WRITING_TEXT_TYPE: '', WRITING_PURPOSE: '', WRITING_AUDIENCE: '', WRITING_PREPARATION: '', WRITING_SUPPORT: 'auto',
   SPEAKING_QUESTION: '', SPEAKING_MATERIALS: '', SPEAKING_TIME: '3',
   DEMANDS_RESPONSE: '',
@@ -108,6 +108,7 @@ function applyValues(text: string, values: Values) {
   return text.replace(/{{(.*?)}}/g, (_, key) => {
     const value = values[key]?.trim()
     if (value) return value
+    if (key === 'GRADE' || key === 'SUBJECT') return 'Not provided'
     if (key === 'SPEAKING_GOAL' || key === 'WRITING_GOAL') {
       const mode = key === 'SPEAKING_GOAL' ? 'speaking' : 'writing'
       return `Not provided. Infer a provisional ${mode} goal from the supplied lesson material and label it as inferred. If the material is insufficient, ask for the goal before producing a scaffold.`
@@ -117,9 +118,13 @@ function applyValues(text: string, values: Values) {
 }
 
 export function buildPrompt(template: string, values: Values) {
+  const grade = values.GRADE?.trim()
+  const subject = values.SUBJECT?.trim()
   const level = values.LEVEL?.trim() || ''
   const knownLevel = /^[1-6](?:[–-][1-6])?$/.test(level)
-  const preparedTemplate = knownLevel ? template : template.replace(' developing English around WIDA levels {{LEVEL}}', ' developing English')
+  const lessonFields = [grade ? '{{GRADE}}' : '', subject ? '{{SUBJECT}}' : ''].filter(Boolean).join(' ') || 'classroom'
+  const lessonTemplate = template.replaceAll('{{GRADE}} {{SUBJECT}}', lessonFields)
+  const preparedTemplate = knownLevel ? lessonTemplate : lessonTemplate.replace(' developing English around WIDA levels {{LEVEL}}', ' developing English')
   const basePrompt = applyValues(preparedTemplate, values)
   const homeLanguage = values.HOME_LANGUAGE?.trim()
   const proficiencyGuidance = knownLevel
@@ -132,6 +137,8 @@ export function buildPrompt(template: string, values: Values) {
   const objectiveContext = values.LEARNING_OBJECTIVE?.trim() ? `Learning objective: ${values.LEARNING_OBJECTIVE.trim()}` : ''
   const observationContext = values.PROFICIENCY_OBSERVATION?.trim()
     ? `Teacher observation for this task: ${values.PROFICIENCY_OBSERVATION.trim()}. Use this to suggest support; it is not a proficiency score.` : ''
+  const missingGrade = grade ? '' : 'No grade level or learner age was provided. Do not assume one or infer maturity from English proficiency. Ask for it if needed to make the resource age-appropriate.'
+  const missingSubject = subject ? '' : 'No subject was provided. Use the subject only where it is evident from the supplied lesson material; ask if it is unclear.'
   const includesEarlyProficiency = knownLevel && /(^|[^0-9])[12](?:[^0-9]|$)/.test(level)
   const languageContext = template.includes('{{HOME_LANGUAGE}}')
     ? 'Use this home-language context as a bridge to meaning while keeping English academic terms and opportunities to hear, say, read, and write in English visible.'
@@ -140,7 +147,7 @@ export function buildPrompt(template: string, values: Values) {
     ? 'For students at earlier proficiency levels, pair essential language with visuals, gesture, modeled oral language, short chunks, and rehearsal. Do not assume every student uses the same language or needs the same support.'
     : 'Do not assume every student uses the same language or needs the same support.'
 
-  return [contextualPrompt, domainContext, objectiveContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
+  return [contextualPrompt, missingGrade, missingSubject, domainContext, objectiveContext, observationContext, homeLanguage ? languageContext : '', includesEarlyProficiency || homeLanguage ? earlyProficiencyGuidance : ''].filter(Boolean).join('\n\n')
 }
 
 /** A discussion card and teacher guide; timing profiles are adjustable planning suggestions. */
@@ -356,7 +363,7 @@ export function buildWordBankPrompt(template: string, values: Values) {
     ? `Translate each vocabulary term into ${languages}, using its meaning in this lesson. Use the correct script and, where there is no direct equivalent, a brief natural explanation. Label the column with the language's name. If several languages are requested, create a separate language-specific version for each, keeping English visible.`
     : 'No home language is specified. Include a blank fourth column labelled “Home language” for families to complete; do not invent a language or translation.'
   const table = `WORD BANK FORMAT\nUse a table with four columns:\n1. Vocabulary: the English word or phrase, displayed prominently.\n2. Kid-friendly meaning: one short, accurate explanation using familiar language. Explain the meaning in this lesson without depending on other unfamiliar words.\n3. Image: one finished, high-quality image that explains the word's meaning in this lesson. Include the actual image in the document and follow the image-creation requirements below.\n4. Home-language translation: ${translation}`
-  const textbookStyle = `Premium textbook style appropriate for ${values.GRADE?.trim() || defaultValues.GRADE}, inspired by the clear educational imagery in DK Eyewitness and National Geographic Kids. Use detailed, realistic imagery, clean composition, strong contrast, and accurate scenes, diagrams, cross-sections or instrument visuals suited to the concept. Every image must teach the exact meaning of the word. Preserve subject accuracy and age-appropriate presentation.`
+  const textbookStyle = `Premium textbook style appropriate for ${values.GRADE?.trim() || 'the supplied lesson context'}, inspired by the clear educational imagery in DK Eyewitness and National Geographic Kids. Use detailed, realistic imagery, clean composition, strong contrast, and accurate scenes, diagrams, cross-sections or instrument visuals suited to the concept. Every image must teach the exact meaning of the word. Preserve subject accuracy and age-appropriate presentation.`
   const images = 'IMAGE CREATION AND QUALITY\n' + textbookStyle + '\n\n' + 'Check which image tools are available in this session. If a native image-generation tool or image model is available, explicitly invoke it to create the word-bank images before assembling the document. Use the highest supported quality and detail settings. Do not stop at describing images, writing image prompts or promising to generate them. Do not use document-drawing or coding tools as a shortcut for finished illustrations when image generation is available.\nCreate one individual image asset per vocabulary word. Use batching only if it returns separate images at full quality; do not shrink a contact sheet or generate the entire vocabulary table as one picture. Keep the vocabulary, meanings and translations as editable document text.\nFor each image, base the composition on the exact definition and lesson context: show the object, action, process or relationship that makes the meaning understandable. For abstract words, use a concrete scene that demonstrates the concept rather than an unrelated symbol. Prefer a polished educational illustration suitable for a professionally published school resource; choose a realistic photograph-style image or a precise explanatory diagram when that teaches the concept more clearly. Keep a coherent visual style, colour palette and level of finish across the bank. Use clear focal points, thoughtful composition, carefully rendered detail, natural proportions and uncluttered backgrounds. Make the concept age-appropriate without making it childish.\nGenerate images at a resolution suitable for crisp printing, ideally at least 1024 pixels on the shorter side when supported. Preserve their proportions and meaningful details when placing them in cells. Do not enlarge tiny images as a substitute for generating adequate resolution. Avoid emojis, generic clip-art icons, rough stick figures, crude placeholder sketches, blurry or pixelated assets, watermarks, distorted objects and garbled text. Clean mathematical models and accurate scientific diagrams are appropriate when they explain the term best. Add necessary diagram labels as clear document text where feasible.\nWhen image-viewing tools are available, inspect each finished image for meaning, subject accuracy, visual finish and readability at its intended print size. Regenerate or replace images that are vague, misleading, distorted or visually weak before assembling the table. When document-rendering tools are available, also inspect the final pages for sharpness, cropping and layout. Do not claim to have inspected or regenerated an image unless you actually did so.\nIf image generation is unavailable but image search and retrieval are supported, use high-quality, appropriately licensed photographs or professional illustrations that closely match the definitions. Do not invent images, sources or licences. If neither generation nor suitable image retrieval is available, provide the available vocabulary table and explain the image limitation separately in chat. Keep capability notices and placeholder labels out of the handout.'
   const placement = 'IMAGE PLACEMENT\nCenter every image horizontally and vertically within its cell, using consistent frame sizes and equal padding. Preserve proportions; never stretch. Crop photos only when the main subject stays clear and centered. Fit complete diagrams within the frame: never crop labels, arrows, or relationships. Size images to the space inside cell padding, with no overflow into borders or adjacent columns. In Word, use centered inline images and vertically centered cells. Allow rows to grow. If rendering is available, inspect the final pages and fix clipping or misalignment before delivery.'
   const layout = 'LAYOUT\nUse an A4 layout with approximately five words per page. Allow more space when needed to keep text and images readable. Keep each vocabulary row together. Include a simple title identifying the grade, subject and supplied unit or topic. Use clear typography, generous spacing and restrained colour.\nKeep the handout focused on the vocabulary table. Do not add word-selection rationales, observation questions, practice activities, proficiency commentary, teacher-review checklists, verification labels or reminders, or extra notes pages. I will review the resource myself.'

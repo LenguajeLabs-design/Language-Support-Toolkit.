@@ -26,6 +26,8 @@ const labels: Record<string, string> = {
 }
 
 const fieldPlaceholders: Record<string, string> = {
+  GRADE: 'e.g., Grade 4 or adult learners',
+  SUBJECT: 'e.g., Science or mathematics',
   HOME_LANGUAGE: 'e.g., Arabic, Spanish, Mixtec',
   SPEAKING_GOAL: 'e.g., compare two historical interpretations',
   WRITING_GOAL: 'e.g., explain how evidence supports a claim',
@@ -82,6 +84,7 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <legend className="sr-only">Customize this prompt</legend>
       {fields.map((field) => <label key={field}><span>{isVisual && field === 'HOME_LANGUAGE' ? 'Target language and script' : labels[field] || field.replaceAll('_', ' ').toLowerCase()}{['HOME_LANGUAGE', 'SPEAKING_GOAL', 'WRITING_GOAL'].includes(field) && !(isVisual && field === 'HOME_LANGUAGE') && <em>Optional</em>}</span><input value={values[field] || ''} placeholder={isVisual && field === 'HOME_LANGUAGE' ? 'e.g., Spanish, Arabic, Simplified Chinese' : fieldPlaceholders[field]} onChange={(event) => update(field, event.target.value)} /></label>)}
     </fieldset>
+    <p className="field-help">Add a grade and subject to tailor the prompt, or leave them blank for a general starting point.</p>
     {isVisual && <p className="field-help">Your AI tool will ask for a target language if you leave it blank. The prompt requests its best available image tools; results depend on what that tool supports.</p>}
     {isWordBank && <p className="field-help">Enter a home language for translations, or leave it blank for a column families can complete.</p>}
     {(strategy.slug === 'support-speaking' || strategy.slug === 'scaffold-writing') && <p className="field-help">Leave the goal blank to request an inferred goal from your lesson material. The AI should label its suggestion and ask if more context is needed.</p>}
@@ -118,8 +121,8 @@ export function PromptBox({ strategy }: { strategy: Strategy }) {
       <p className="word-builder-note">Writing-task details are not saved in this browser. Avoid student-identifying details.</p>
     </section>}
     {isAdaptText && <section className="word-builder" aria-labelledby="adapt-builder-title">
-      <h3 className="builder-section-title" id="adapt-builder-title">Your text</h3>
-      <p>After pasting the prompt into your AI tool, add your lesson text in the clearly marked area at the very top. The AI will return the adapted reading first, followed by supports and teacher notes.</p>
+      <h3 className="builder-section-title" id="adapt-builder-title">Add your text in your AI tool</h3>
+      <p>Copy the prompt below and paste it into your school-approved AI tool. At the top of that prompt, replace <code>[PASTE LESSON TEXT HERE]</code> with the text you want to adapt. The AI will return the adapted reading first, followed by supports and teacher notes.</p>
       <details className="word-builder-advanced"><summary>More choices <span>Optional</span></summary>
         <label className="word-builder-label">Amount of language support <span>Optional</span><select value={values.ADAPT_SUPPORT || ''} onChange={event => update('ADAPT_SUPPORT', event.target.value)}><option value="">Let the AI suggest support</option><option value="light">Light support</option><option value="moderate">Moderate support</option><option value="substantial">Substantial support</option></select></label>
       </details>

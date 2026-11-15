@@ -40,6 +40,27 @@ test('text adaptation starts with one clearly bounded paste area before any AI i
 })
 
 for (const strategy of strategies) {
+  test(`${strategy.slug}: a fresh prompt stays general without assuming a grade or subject`, () => {
+    const prompt = personalizedPrompt(strategy, defaultValues)
+    assert.match(prompt, /No grade level or learner age was provided/)
+    assert.match(prompt, /No subject was provided/)
+    assert.doesNotMatch(prompt, /Grade 6|\[ADD (GRADE|SUBJECT) HERE\]|{{|undefined|null/)
+  })
+  test(`${strategy.slug}: clearing lesson context removes old answers while retaining supplied context`, () => {
+    const prior = { ...defaultValues, GRADE: 'Grade 9', SUBJECT: 'geography' }
+    for (const blank of ['', '   ', undefined]) {
+      const cleared = personalizedPrompt(strategy, { ...prior, GRADE: blank, SUBJECT: blank })
+      assert.equal(cleared, personalizedPrompt(strategy, defaultValues))
+      const gradeOnly = personalizedPrompt(strategy, { ...prior, SUBJECT: blank })
+      assert.match(gradeOnly, /Grade 9/)
+      assert.match(gradeOnly, /No subject was provided/)
+      assert.doesNotMatch(gradeOnly, /No grade level or learner age was provided|geography/)
+      const subjectOnly = personalizedPrompt(strategy, { ...prior, GRADE: blank })
+      assert.match(subjectOnly, /geography/)
+      assert.match(subjectOnly, /No grade level or learner age was provided/)
+      assert.doesNotMatch(subjectOnly, /No subject was provided|Grade 9/)
+    }
+  })
   test(`${strategy.slug}: learner details reach the prompt without a home language`, () => {
     const values = { ...defaultValues, GRADE: 'Grade 9', SUBJECT: 'geography', LEVEL: '1–2', HOME_LANGUAGE: '' }
     const prompt = buildPrompt(strategy.prompt, values)
