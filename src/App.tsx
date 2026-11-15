@@ -52,7 +52,7 @@ function Home({ onNavigate }: { onNavigate: (path: string) => void }) {
     document.getElementById('lesson-moments')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
   }
   const lessonMoments = [
-    ['01', 'Reading + text', 'A reading, worksheet, or AI text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
+    ['01', 'Reading + text', 'A reading, worksheet, or text', 'Make the language clearer without lowering the thinking.', 'adapt-a-text'],
     ['02', 'Vocabulary', 'Important vocabulary', 'Choose and teach the words that unlock the lesson.', 'build-a-word-bank'],
     ['03', 'Visuals', 'A slide, chart, or diagram', 'Create a reviewed multilingual access point.', 'translate-a-visual'],
     ['04', 'Conversation', 'A discussion or oral response', 'Prepare language for meaningful participation.', 'support-speaking'],
