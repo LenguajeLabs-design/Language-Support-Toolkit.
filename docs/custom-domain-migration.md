@@ -5,16 +5,26 @@ Apex address: `https://languagesupporttoolkit.app/`, redirecting to `www` throug
 
 ## Status and scope
 
+Activated on 15 November 2026 after preparation PR #11 was merged and its production deployment succeeded. The preferred HTTPS address returns HTTP 200, its certificate is approved for both `www` and apex names, and repository Pages has HTTPS enforcement enabled.
+
+Porkbun now has the four apex A records and the explicit `www` CNAME listed below, each with TTL 600. The apex parking ALIAS was replaced; the unrelated wildcard CNAME to `pixie.porkbun.com` was preserved. Nameservers and unrelated domain settings were unchanged. Cloudflare (`1.1.1.1`) and Google (`8.8.8.8`) public DNS lookups returned the GitHub targets.
+
+Live browser checks passed for all seven direct strategy links and reloads at desktop and mobile widths, including prompt forms and example images. Live prompt copying and an old GitHub strategy link's hash-preserving redirect passed. The manifest, worker, favicon, and PWA icons all returned HTTP 200 over HTTPS.
+
+HTTP `www` and the old GitHub project address return 301 redirects to the preferred HTTPS address. Apex HTTP and HTTPS also return 301, with the HTTPS certificate verified normally. The apex endpoint checks used `curl --resolve languagesupporttoolkit.app:443:185.199.108.153` because the authoring machine's default DNS resolver still cached a negative apex answer during the switch. Public DNS was correct; local DNS caches may need time to expire. This check preserved TLS hostname/certificate validation and did not use `-k`.
+
+### Preparation history
+
 Prepared on 15 November 2026 from GitHub `main` commit `931e6bb74219f290c82bd5a2895a92cdba48b7d7` in a separate checkout. This is a domain migration; no design, brand assets, strategy content, prompts, or application navigation changed.
 
-Read-only preflight found:
+Read-only preflight, before activation, found:
 
 - Repository Pages `build_type` is `workflow` (GitHub Actions), with no custom domain (`cname: null`). HTTPS enforcement is enabled for the existing GitHub address.
 - The current address, `https://lenguajelabs-design.github.io/Language-Support-Toolkit./`, returns HTTP 200.
-- Public DNS uses Porkbun nameservers. The apex resolves to parking addresses `207.207.210.107` and `207.207.210.229`; `www` is a CNAME to `pixie.porkbun.com`. These are not GitHub Pages targets. The private Porkbun record list was not accessed; an apex ALIAS can produce these public A answers.
-- HTTPS requests to both new domain variants fail their TLS handshake. DNS, certificates, redirects, and the new live website are **not verified**.
+- Public DNS uses Porkbun nameservers. The apex resolved to parking addresses `207.207.210.107` and `207.207.210.229`; `www` resolved to `pixie.porkbun.com`. These were not GitHub Pages targets. The subsequent authorized Porkbun inspection confirmed an apex ALIAS and a wildcard CNAME, both pointing to `pixie.porkbun.com` with TTL 600. There was no explicit `www` record.
+- Before activation, HTTPS requests to both new domain variants failed their TLS handshake, and DNS, certificates, redirects, and the new live website had not yet been verified.
 
-No DNS or repository Pages settings were changed. Preparing this branch does not switch the live website. Merge and deploy the metadata change before the coordinated domain switch below; until then, the existing GitHub address remains in use.
+The preparation PR made no DNS or repository Pages settings changes. Activation was separately authorized afterward, including the Porkbun DNS edits. The configuration procedure below remains available for reference and recovery.
 
 ## Minimum repository changes
 

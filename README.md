@@ -1,8 +1,8 @@
 # Language Support Toolkit
 
-**Preferred public address (pending DNS and HTTPS verification):** [Language Support Toolkit](https://www.languagesupporttoolkit.app/).
+**Live toolkit:** [Language Support Toolkit](https://www.languagesupporttoolkit.app/). Use this address in workshop materials and shared links.
 
-**Current address during migration:** [GitHub Pages](https://lenguajelabs-design.github.io/Language-Support-Toolkit./). Continue using this address until the [custom-domain migration checks](docs/custom-domain-migration.md) pass.
+The [former GitHub Pages address](https://lenguajelabs-design.github.io/Language-Support-Toolkit./) redirects to the custom domain. See the [migration record](docs/custom-domain-migration.md) for configuration and verification details.
 
 A lightweight companion website for **Every Lesson Is a Language Lesson**, a November 2026 professional-development workshop for teachers working with multilingual learners.
 
@@ -58,7 +58,7 @@ The word-bank prompt explicitly requests native image generation at the best sup
 
 The site uses hash-based routes (for example `/#/strategy/build-a-word-bank`). This keeps individual strategy links working on static hosts—including GitHub Pages—without server-side route rewrites. Relative build asset paths let the same `dist` output work at a domain root or the GitHub Pages project path. Keep Vite's `base` set to `./` when publishing to either host.
 
-GitHub Pages hosts the preferred public address above once the domain migration is verified. The existing Sites publication remains a working copy of the toolkit. Its `.openai/hosting.json` retains the existing Site identity. The service worker checks the network first for page navigation so returning visitors receive current releases, with an offline fallback when available.
+GitHub Pages hosts the public address above. The existing Sites publication remains a working copy of the toolkit. Its `.openai/hosting.json` retains the existing Site identity. The service worker checks the network first for page navigation so returning visitors receive current releases, with an offline fallback when available.
 
 ## GitHub Pages
 
